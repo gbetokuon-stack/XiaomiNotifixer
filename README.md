@@ -4,6 +4,14 @@ Giải pháp toàn diện khắc phục triệt để vấn đề **chậm, tr�
 
 > 💡 **Tương thích 100% với ứng dụng Ngân hàng, Ví điện tử và VNeID.** Không cần Root, không cần bật chế độ Nhà phát triển (Developer Options).
 
+### 🆕 Có gì mới ở phiên bản 5.0.2
+- **Tương thích Shizuku Binder IPC**: Bổ sung `ShizukuProvider` vào `AndroidManifest.xml` và tích hợp `OnBinderReceivedListenerSticky`, tự động nhận diện quyền Shizuku tức thì khi kết nối.
+- **Sửa lỗi hiển thị Quản lý App**: Chuyển sang cơ chế truy vấn `queryIntentActivities` kết hợp `ResolveInfoFlags`, quét và hiển thị đầy đủ 100% ứng dụng người dùng cài đặt trên Android 11+ / HyperOS (không còn bị ẩn do Package Visibility).
+- **Tối ưu tự động chuyên sâu HyperOS**: Lệnh batch qua Shizuku nạp thêm mã op nội bộ Xiaomi `10008` (`OP_AUTO_START` của MIUI SecurityCenter), bypass Doze whitelist và vô hiệu hóa cơ chế giết tiến trình ngầm PowerKeeper.
+- **Tương thích VNeID, Ngân hàng, 4G, VPN, DNS**: Hướng dẫn dùng song song Shizuku không xung đột kiểm tra môi trường debug của VNeID.
+
+---
+
 ---
 
 ## 📥 Tải Nhanh File Cài Đặt (APK)
