@@ -35,6 +35,14 @@ class MainActivity : AppCompatActivity() {
         else Toast.makeText(this, "Cần cấp quyền thông báo!", Toast.LENGTH_SHORT).show()
     }
 
+    private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
+        updateShizuku(ShizukuHelper.hasPermission())
+    }
+
+    private val binderDeadListener = Shizuku.OnBinderDeadListener {
+        updateShizuku(false)
+    }
+
     private val shizukuListener = Shizuku.OnRequestPermissionResultListener { _, res ->
         updateShizuku(res == PackageManager.PERMISSION_GRANTED)
     }
@@ -44,7 +52,11 @@ class MainActivity : AppCompatActivity() {
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
         initViews()
-        try { Shizuku.addRequestPermissionResultListener(shizukuListener) } catch (_: Throwable) {}
+        try {
+            Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
+            Shizuku.addBinderDeadListener(binderDeadListener)
+            Shizuku.addRequestPermissionResultListener(shizukuListener)
+        } catch (_: Throwable) {}
     }
 
     private fun initViews() {
@@ -129,7 +141,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        try { Shizuku.removeRequestPermissionResultListener(shizukuListener) } catch (_: Throwable) {}
+        try {
+            Shizuku.removeBinderReceivedListener(binderReceivedListener)
+            Shizuku.removeBinderDeadListener(binderDeadListener)
+            Shizuku.removeRequestPermissionResultListener(shizukuListener)
+        } catch (_: Throwable) {}
         super.onDestroy()
     }
 }
