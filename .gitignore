@@ -1,0 +1,24 @@
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+app/build/
+/captures
+.externalNativeBuild
+.cxx
+*.log
+platform-tools/
+*.py
+*.bat
+*.class
+licenses/
+
+# Allow essential files
+!gradlew.bat
+!XiaomiNotificationFixer.apk
+!apply_fix.ps1
+!fix_xiaomi.bat
+
+

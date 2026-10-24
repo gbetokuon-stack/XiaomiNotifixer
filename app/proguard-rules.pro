@@ -1,0 +1,2 @@
+-keep class dev.rikka.shizuku.** { *; }
+-keep class com.xiaomifix.notification.** { *; }

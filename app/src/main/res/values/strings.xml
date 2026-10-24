@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Xiaomi Notification Fixer</string>
+    <string name="title_hyperos_fix">Xiaomi &amp; HyperOS Notification Fix</string>
+    <string name="subtitle_device">Tối ưu push thông báo cho Xiaomi 15 Ultra / MIUI</string>
+    <string name="fcm_heartbeat_title">FCM Keep-Alive Service</string>
+    <string name="fcm_heartbeat_desc">Duy trì kết nối socket Google FCM (mtalk.google.com:5228), chống rớt thông báo do NAT timeout khi tắt màn hình.</string>
+    <string name="service_running">Đang hoạt động</string>
+    <string name="service_stopped">Đã dừng</string>
+    <string name="enable_service">Bật Service</string>
+    <string name="disable_service">Tắt Service</string>
+    
+    <string name="section_miui_settings">Cài Đặt Cốt Lõi HyperOS / MIUI</string>
+    <string name="btn_autostart">1. Quyền Tự Khởi Chạy (Autostart)</string>
+    <string name="desc_autostart">Bắt buộc bật cho Zalo, Messenger, Telegram để nhận tin nhắn khi tắt app.</string>
+    
+    <string name="btn_battery_saver">2. Tiết Kiệm Pin -> Không Hạn Chế</string>
+    <string name="desc_battery_saver">Tắt cơ chế MIUI PowerKeeper tự động giết tiến trình sau 10 phút khóa màn hình.</string>
+
+    <string name="btn_battery_optimization">3. Bỏ Tối Ưu Hóa Pin Android (Doze)</string>
+    <string name="desc_battery_optimization">Thêm app vào danh sách trắng Doze của hệ thống Android.</string>
+
+    <string name="btn_notification_listener">4. Quyền Đọc Thông Báo (Chống Kill)</string>
+    <string name="desc_notification_listener">Cấp quyền Notification Listener giúp app có priority bất tử trên HyperOS.</string>
+
+    <string name="section_shizuku">Công Cụ Tự Động Hóa 1-Chạm (Shizuku / ADB)</string>
+    <string name="shizuku_desc">Tự động gán quyền chạy nền (RUN_IN_BACKGROUND) &amp; whitelist Doze cho toàn bộ ứng dụng bạn chọn mà không cần can thiệp thủ công từng app.</string>
+    <string name="btn_manage_apps">Chọn Ứng Dụng Cần Fix (Zalo, Messenger…)</string>
+    <string name="shizuku_status_active">Shizuku: Đã kết nối</string>
+    <string name="shizuku_status_inactive">Shizuku: Chưa kích hoạt (Nhấn để xem hướng dẫn)</string>
+
+    <string name="select_apps">Chọn ứng dụng sửa thông báo</string>
+    <string name="search_apps">Tìm kiếm ứng dụng…</string>
+    <string name="btn_batch_fix">Áp Dụng Fix Triệt Để</string>
+    <string name="msg_service_started">FCM Keep-Alive Service đã được kích hoạt</string>
+    <string name="msg_service_stopped">FCM Keep-Alive Service đã tắt</string>
+    <string name="msg_fix_success">Đã áp dụng quyền nền tối đa cho %1$s</string>
+    <string name="channel_fcm_name">FCM Keep-Alive Service</string>
+    <string name="channel_fcm_desc">Thông báo duy trì FCM Socket không bị đóng</string>
+</resources>
