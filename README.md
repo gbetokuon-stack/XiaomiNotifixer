@@ -57,3 +57,4 @@
    - **Bỏ tối ưu hóa pin**: Nhấn **Cho phép** (Allow).
 3. (Tùy chọn khuyến nghị): Kích hoạt app **Shizuku** -> Vào mục **Chọn Ứng Dụng Cần Fix** -> Nhấn **Áp Dụng Fix Triệt Để** để hệ thống whitelist hoàn toàn nền.
 4. Khóa đa nhiệm (Lock in Recents): Vuốt mở giao diện đa nhiệm -> Nhấn giữ vào app cần nhận thông báo -> Bấm biểu tượng Ổ Khóa.
+"# XiaomiNotifixer" 
