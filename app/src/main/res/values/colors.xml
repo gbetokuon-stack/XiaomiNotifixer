@@ -1,16 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#0F6CBD</color>
-    <color name="primary_variant">#115EA3</color>
-    <color name="secondary">#107C41</color>
-    <color name="accent_hyperos">#FF4D4F</color>
-    <color name="bg_dark">#121316</color>
-    <color name="surface_card">#1E1F24</color>
-    <color name="surface_card_secondary">#282A30</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#A0A4B0</color>
-    <color name="status_good">#4CAF50</color>
-    <color name="status_bad">#F44336</color>
-    <color name="status_warning">#FF9800</color>
-    <color name="border_subtle">#333742</color>
+    <!-- Cyber Neon Anime Palette -->
+    <color name="primary">#FF2A85</color>
+    <color name="primary_variant">#D81B60</color>
+    <color name="secondary">#00F0FF</color>
+    <color name="accent_hyperos">#FF0055</color>
+    <color name="accent_cyber_purple">#B026FF</color>
+    <color name="accent_neon_green">#00FFA3</color>
+    <color name="accent_gold">#FFE600</color>
+
+    <color name="bg_dark">#0B0813</color>
+    <color name="bg_card_dark">#151026</color>
+    <color name="surface_card">#1B1433</color>
+    <color name="surface_card_secondary">#251C47</color>
+    <color name="surface_card_glow">#332463</color>
+
+    <color name="text_primary">#F8F9FA</color>
+    <color name="text_secondary">#9E92BE</color>
+    <color name="text_cyber_pink">#FF70A6</color>
+    <color name="text_cyber_cyan">#70F0FF</color>
+
+    <color name="status_good">#00FFA3</color>
+    <color name="status_bad">#FF3366</color>
+    <color name="status_warning">#FFB800</color>
+    <color name="border_cyber">#FF2A85</color>
+    <color name="border_cyan">#00F0FF</color>
+    <color name="border_subtle">#2E2356</color>
 </resources>
+

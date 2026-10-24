@@ -88,21 +88,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateHeartbeatUi(running: Boolean) {
         if (running) {
-            b.tvHeartbeatStatus.text = getString(R.string.service_running)
+            b.tvHeartbeatStatus.text = "● BẤT TỬ TRỰC TUYẾN [ONLINE 100%]"
             b.tvHeartbeatStatus.setTextColor(ContextCompat.getColor(this, R.color.status_good))
+            b.tvWibuBadge.text = "✦ ACTIVE 100%"
+            b.tvWibuBadge.setBackgroundColor(ContextCompat.getColor(this, R.color.accent_neon_green))
         } else {
-            b.tvHeartbeatStatus.text = getString(R.string.service_stopped)
+            b.tvHeartbeatStatus.text = "● SYSTEM OFFLINE [STANDBY]"
             b.tvHeartbeatStatus.setTextColor(ContextCompat.getColor(this, R.color.status_bad))
-            b.tvPingStats.text = "Socket: mtalk.google.com:5228 (Đã dừng)"
+            b.tvPingStats.text = "> Socket: mtalk.google.com:5228\n> Mode: Ultra Low Power Deep-Sleep\n> Status: Standby"
+            b.tvWibuBadge.text = "✦ STANDBY"
         }
     }
 
     private fun updateShizuku(hasPermission: Boolean) {
         if (hasPermission) {
-            b.tvShizukuStatus.text = getString(R.string.shizuku_status_active)
+            b.tvShizukuStatus.text = "✦ OVERDRIVE ACTIVE"
             b.tvShizukuStatus.setTextColor(ContextCompat.getColor(this, R.color.status_good))
         } else {
-            b.tvShizukuStatus.text = getString(R.string.shizuku_status_inactive)
+            b.tvShizukuStatus.text = "✧ SHIZUKU OFFLINE"
             b.tvShizukuStatus.setTextColor(ContextCompat.getColor(this, R.color.status_warning))
         }
     }

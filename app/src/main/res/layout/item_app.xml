@@ -2,15 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="6dp"
-    android:background="@color/surface_card"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_card_cyber"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="10dp">
+    android:padding="12dp">
     <ImageView
         android:id="@+id/ivIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp" />
+        android:layout_width="44dp"
+        android:layout_height="44dp" />
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -28,17 +28,19 @@
             android:id="@+id/tvPackage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary"
+            android:textColor="@color/text_cyber_cyan"
             android:textSize="11sp" />
         <TextView
             android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/status_warning"
+            android:textColor="@color/accent_gold"
             android:textSize="11sp" />
     </LinearLayout>
     <CheckBox
         android:id="@+id/cbSelect"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/primary" />
 </LinearLayout>
+

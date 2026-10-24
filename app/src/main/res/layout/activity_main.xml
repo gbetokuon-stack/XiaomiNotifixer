@@ -1,105 +1,275 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_dark">
+    android:background="@drawable/bg_cyber_gradient"
+    android:fillViewport="true">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- WIBU CYBER HEADER -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/title_hyperos_fix"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/tvDeviceModel"
-            android:layout_width="wrap_content"
+            android:background="@drawable/bg_card_cyber"
+            android:orientation="vertical"
+            android:padding="14dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(◕‿◕✿)⚡"
+                    android:textSize="22sp" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="XIAOMI NOTIFIXER // 超電磁砲"
+                        android:textColor="@color/secondary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="FCM PROTOCOL OVERDRIVE"
+                        android:textColor="@color/primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvWibuBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_btn_cyber_primary"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
+                    android:text="✦ SYNC 100%"
+                    android:textColor="#FFFFFF"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tvDeviceModel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Target: Xiaomi 15 Ultra // HyperOS 2 Core"
+                android:textColor="@color/text_cyber_cyan"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- CYBER STATS DASHBOARD (HUD) -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/subtitle_device"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp" />
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card_neon_cyan"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="⚔️ TIẾN TRÌNH BẤT TỬ (FCM)"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchFcmHeartbeat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvHeartbeatStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="● SYSTEM OFFLINE [STANDBY]"
+                android:textColor="@color/status_bad"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <!-- MATRIX TELEMETRY TERMINAL -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_terminal_box"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="[CONSOLE PROTOCOL MONITOR]"
+                    android:textColor="@color/accent_gold"
+                    android:textSize="9sp" />
+
+                <TextView
+                    android:id="@+id/tvPingStats"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="monospace"
+                    android:text="> Socket: mtalk.google.com:5228\n> Mode: Ultra Low Power Deep-Sleep\n> Status: Idle"
+                    android:textColor="@color/accent_neon_green"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- SHIZUKU / ADB CYBER PANEL -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card_cyber"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🔮 SHIZUKU OVERDRIVE"
+                    android:textColor="@color/text_cyber_pink"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvShizukuStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DISCONNECTED"
+                    android:textColor="@color/status_warning"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Whitelist Doze hàng loạt cho Zalo, Messenger... không cần kết nối máy tính."
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAppList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/accent_cyber_purple"
+                android:text="✨ QUẢN LÝ APP WHITELIST (DANH SÁCH)"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:cornerRadius="10dp" />
+        </LinearLayout>
+
+        <!-- HYPEROS MANA SEALS (PERMISSION LINKS) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/fcm_heartbeat_title"
-            android:textColor="@color/text_primary"
+            android:layout_marginBottom="6dp"
+            android:text="⚡ PHONG ẤN HỆ THỐNG HYPEROS (BẮT BUỘC BẬT)"
+            android:textColor="@color/secondary"
+            android:textSize="12sp"
             android:textStyle="bold" />
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchFcmHeartbeat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/enable_service"
-            android:textColor="@color/text_secondary" />
-        <TextView
-            android:id="@+id/tvHeartbeatStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/service_stopped"
-            android:textColor="@color/status_bad"
-            android:textSize="12sp" />
-        <TextView
-            android:id="@+id/tvPingStats"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:background="@color/surface_card_secondary"
-            android:padding="6dp"
-            android:text="Socket: mtalk.google.com:5228"
-            android:textColor="#81C784"
-            android:textSize="11sp" />
-        <TextView
-            android:id="@+id/tvShizukuStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/shizuku_status_inactive"
-            android:textColor="@color/status_warning"
-            android:textSize="12sp" />
-        <Button
-            android:id="@+id/btnAppList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/btn_manage_apps" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/section_miui_settings"
-            android:textColor="@color/text_primary"
-            android:textStyle="bold" />
-        <Button
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAutostart"
-            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="@string/btn_autostart" />
-        <Button
+            android:backgroundTint="#211745"
+            android:text="1. Tự Khởi Chạy (Autostart) ➔ Bật Xanh"
+            android:textAlignment="viewStart"
+            android:textColor="@color/text_cyber_cyan"
+            android:textSize="12sp"
+            app:cornerRadius="8dp"
+            app:strokeColor="@color/border_cyan"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBatterySaver"
-            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/btn_battery_saver" />
-        <Button
+            android:layout_marginTop="6dp"
+            android:backgroundTint="#211745"
+            android:text="2. Tiết Kiệm Pin ➔ Chọn 'Không Hạn Chế'"
+            android:textAlignment="viewStart"
+            android:textColor="@color/text_cyber_pink"
+            android:textSize="12sp"
+            app:cornerRadius="8dp"
+            app:strokeColor="@color/border_cyber"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBatteryOpt"
-            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/btn_battery_optimization" />
-        <Button
+            android:layout_marginTop="6dp"
+            android:backgroundTint="#211745"
+            android:text="3. Miễn Trừ Doze Pin ➔ Cho Phép (Allow)"
+            android:textAlignment="viewStart"
+            android:textColor="@color/accent_gold"
+            android:textSize="12sp"
+            app:cornerRadius="8dp"
+            app:strokeColor="@color/accent_gold"
+            app:strokeWidth="1dp" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNotificationListener"
-            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/btn_notification_listener" />
+            android:layout_marginTop="6dp"
+            android:backgroundTint="#211745"
+            android:text="4. Quyền Đọc Thông Báo ➔ Trở Thành Bất Tử"
+            android:textAlignment="viewStart"
+            android:textColor="@color/accent_neon_green"
+            android:textSize="12sp"
+            app:cornerRadius="8dp"
+            app:strokeColor="@color/accent_neon_green"
+            app:strokeWidth="1dp" />
+
+        <!-- WIBU FOOTER -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text="⊂(・▽・⊂) Tạo bởi Wibu Developer vì thông báo Zalo không nổ&#10;100% An toàn cho VNeID &amp; App Bank"
+            android:textColor="@color/text_secondary"
+            android:textSize="10sp" />
+
     </LinearLayout>
 </ScrollView>
