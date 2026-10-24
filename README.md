@@ -1,75 +1,86 @@
 # 🚀 Xiaomi Notifixer (HyperOS & MIUI)
 
-Giải pháp toàn diện khắc phục triệt để vấn đề **chậm, trễ hoặc mất thông báo FCM (Firebase Cloud Messaging)** trên các dòng máy Xiaomi, Redmi, POCO chạy **HyperOS 1, HyperOS 2 (Android 14 - 15)** và **MIUI**.
+Giải pháp toàn diện khắc phục triệt để vấn đề **chậm, trễ hoặc mất thông báo FCM (Firebase Cloud Messaging)** (Zalo, Messenger, Telegram, Gmail...) trên các dòng điện thoại Xiaomi, Redmi, POCO chạy **HyperOS 1, HyperOS 2 (Android 14 - 15)** và **MIUI**.
+
+> 💡 **Tương thích 100% với ứng dụng Ngân hàng, Ví điện tử và VNeID.** Không cần Root, không cần bật chế độ Nhà phát triển (Developer Options).
 
 ---
 
 ## 📥 Tải Nhanh File Cài Đặt (APK)
 
-Bạn có thể tải trực tiếp file APK đã được biên dịch sẵn:
+👉 **[Tải XiaomiNotificationFixer.apk (Bản Mới Nhất - Siêu Tiết Kiệm Pin)](https://github.com/gbetokuon-stack/XiaomiNotifixer/raw/main/XiaomiNotificationFixer.apk)**
 
-👉 **[Tải XiaomiNotificationFixer.apk (Direct Download)](https://github.com/gbetokuon-stack/XiaomiNotifixer/raw/main/XiaomiNotificationFixer.apk)**
-
-Hoặc tải bản mới nhất được GitHub Actions tự động build tại tab **[Actions](../../actions)**.
+*(Hoặc tải artifact từ hệ thống build tự động tại tab **[Actions](../../actions)**).*
 
 ---
 
-## ⚡ Nguyên Nhân Trễ Thông Báo Trên HyperOS
+## 📱 HƯỚNG DẪN CÀI ĐẶT & SỬ DỤNG CHI TIẾT (BƯỚC-TỪNG-BƯỚC)
 
-1. **NAT Timeout của Nhà Mạng:** Router Wi-Fi hoặc mạng 4G/5G thường đóng kết nối TCP không hoạt động sau 5-15 phút. Chu kỳ FCM mặc định của Google lên đến 15-28 phút khiến điện thoại mất liên lạc với server Google cho đến khi màn hình bật.
-2. **Cơ chế PowerKeeper & Joyose của HyperOS:** Trình quản lý pin đóng băng (freeze) hoặc kill tiến trình background của các app nhắn tin sau 10 phút khóa màn hình.
-3. **Phantom Process Killer:** Android 12 trở lên giới hạn số tiến trình con chạy ngầm (tối đa 32), tự động terminate khi vượt ngưỡng.
-4. **Android Doze & Quyền Autostart:** Hệ thống hạn chế truy cập mạng và wakelock trong chế độ Doze nếu app không được whitelist.
+Dành cho người dùng dùng điện thoại trực tiếp (tương thích app Ngân hàng, VNeID):
 
----
-
-## 🛠️ Giải Pháp Của Dự Án
-
-Dự án kết hợp **2 tầng tối ưu**:
-
-### 1. Ứng Dụng Android Chạy Nền (`XiaomiNotificationFixer.apk`)
-* **FCM Heartbeat Pinger:** Chủ động ping socket TCP tới các máy chủ Google FCM (`mtalk.google.com:5228`) định kỳ mỗi **120 giây**, đảm bảo tunnel kết nối luôn mở, push notification nhận tức thì.
-* **Notification Listener Service:** Tận dụng đặc quyền của hệ thống Android — tiến trình sở hữu Notification Listener Service không bị hệ điều hành tiêu diệt khi thiếu RAM.
-* **Tích Hợp Shizuku:** Cấp quyền tối ưu hệ thống và whitelist app trực tiếp ngay trên điện thoại mà không cần cắm cáp vào máy tính.
-* **Tự khởi động cùng hệ thống:** Lắng nghe broadcast `BOOT_COMPLETED` để tự duy trì dịch vụ sau khi khởi động lại máy.
-
-### 2. Kịch Bản Tối Ưu Hệ Thống Qua ADB (`fix_xiaomi.bat` / `apply_fix.ps1`)
-* Tăng trần **Phantom Process Killer** lên mức tối đa (`max_phantom_processes 2147483647`).
-* Thiết lập chu kỳ **FCM Heartbeat toàn hệ thống** về `120000ms` (2 phút).
-* Đưa danh sách 32 ứng dụng phổ biến vào danh sách loại trừ tối ưu pin (**Doze Whitelist**):
-  * *Nhắn tin / Mạng xã hội:* Zalo, Messenger, Telegram, WhatsApp, Viber, Skype, Instagram, Facebook, TikTok.
-  * *Công việc:* Gmail, Outlook, Slack, Microsoft Teams, Discord, Google Chat.
-  * *Ngân hàng & Mua sắm:* VCB Digibank, Techcombank, BIDV, MB Bank, MoMo, Shopee, Lazada, Grab.
-* Cấp quyền chạy ngầm bắt buộc qua AppOps: `RUN_IN_BACKGROUND`, `START_FOREGROUND`, `WAKE_LOCK`.
+### Bước 1: Tải và cài đặt ứng dụng
+1. Bấm vào link tải trực tiếp file **[XiaomiNotificationFixer.apk](https://github.com/gbetokuon-stack/XiaomiNotifixer/raw/main/XiaomiNotificationFixer.apk)** bằng Chrome trên điện thoại.
+2. Mở file APK vừa tải về, chọn **Cài đặt** (Cho phép cài đặt từ nguồn này nếu được hỏi).
 
 ---
 
-## 📖 Hướng Dẫn Sử Dụng
+### Bước 2: Thiết lập trong ứng dụng Xiaomi Notification Fixer
+1. Mở ứng dụng **Xiaomi Notification Fixer**.
+2. Bật công tắc **FCM Keep-Alive Service** ở trên cùng:
+   * Chọn **Cho phép** khi hệ thống hỏi quyền gửi thông báo.
+3. Bấm nút **Truy Cập Thông Báo (Notification Access)**:
+   * Tìm dòng **Xiaomi Notification Fixer** -> Gạt bật công tắc cho phép. *(Đặc quyền này giúp app không bị HyperOS dọn RAM).*
+4. Bấm nút **Tiết Kiệm Pin (Battery Saver)**:
+   * Chọn mục **Không hạn chế (No restrictions)**.
+5. Bấm nút **Bỏ Tối Ưu Pin (Doze Whitelist)**:
+   * Nhấn **Cho phép (Allow)** để đưa app vào danh sách không bị Doze đóng băng.
 
-### Cách 1: Tối Ưu Nhanh Bằng Máy Tính (Khuyên Dùng)
+---
+
+### Bước 3: Cài đặt hệ thống HyperOS / MIUI (CỰC KỲ QUAN TRỌNG)
+
+Để HyperOS không kill các app nhắn tin (Zalo, Messenger, Telegram...):
+
+#### 1. Khóa đa nhiệm (Lock in Recents):
+* Vuốt mở màn hình **Đa nhiệm (Recent Apps)**.
+* Nhấn giữ vào thẻ app **Xiaomi Notification Fixer** -> Bấm biểu tượng **Ổ khóa** 🔒.
+* *Làm tương tự với các app Zalo, Messenger, Telegram.*
+
+#### 2. Bật Tự khởi chạy (Autostart):
+* Vào **Cài đặt** > **Ứng dụng** > **Quyền truy cập** > **Tự khởi chạy**.
+* Bật xanh cho **Xiaomi Notification Fixer** và tất cả app nhắn tin.
+
+#### 3. Chế độ Pin cho App nhắn tin:
+* Nhấn giữ icon app nhắn tin trên màn hình chính > **Thông tin ứng dụng**.
+* Chọn **Tiết kiệm pin** > Chọn **Không hạn chế (No restrictions)**.
+
+#### 4. Tắt Tùy chọn nhà phát triển (Nếu trước đó đã bật):
+* Vào **Cài đặt** > **Cài đặt bổ sung** > **Tùy chọn cho nhà phát triển** > Gạt **TẮT** công tắc trên cùng.
+
+---
+
+## 💻 HƯỚNG DẪN DÙNG MÁY TÍNH & ADB (TÙY CHỌN CHO MÁY KHÔNG DÙNG BANK/VNeID)
 
 1. Bật **Tùy chọn nhà phát triển** trên Xiaomi:
-   * Vào *Cài đặt > Thông tin thiết bị* > Chạm 7 lần vào *Phiên bản OS*.
-   * Vào *Cài đặt bổ sung > Tùy chọn cho nhà phát triển*.
-   * Bật **Gỡ lỗi USB (USB Debugging)**.
-   * Bật **Gỡ lỗi USB (Cài đặt bảo mật) / USB Debugging (Security settings)**.
-2. Kết nối điện thoại với máy tính qua cáp USB và chọn *Luôn cho phép từ máy tính này*.
-3. Nhấp đúp chuột để chạy file:
-   * **`fix_xiaomi.bat`** (trên Windows)
-   * Script sẽ tự động áp dụng toàn bộ tweak hệ thống, cài đặt APK và cấp toàn bộ quyền cần thiết.
+   * *Cài đặt > Thông tin thiết bị* > Chạm 7 lần vào *Phiên bản OS*.
+   * *Cài đặt bổ sung > Tùy chọn cho nhà phát triển*.
+   * Bật **Gỡ lỗi USB (USB Debugging)** & **Gỡ lỗi USB (Cài đặt bảo mật)**.
+2. Kết nối điện thoại với máy tính qua cáp USB.
+3. Chạy file **`fix_xiaomi.bat`** (Windows) để tự động hóa toàn bộ:
+   * Vô hiệu hoá Phantom Process Killer (`max_phantom_processes 2147483647`).
+   * Tinh chỉnh FCM Heartbeat 120s.
+   * Whitelist Doze và cấp quyền ngầm cho 32 ứng dụng nhắn tin, ngân hàng, công việc.
 
 ---
 
-### Cách 2: Cài Đặt Trực Tiếp Trên Điện Thoại
+## 🔋 CƠ CHẾ SIÊU TIẾT KIỆM PIN (Pin Sụt < 1% / Đêm)
 
-1. Tải và cài đặt file **[XiaomiNotificationFixer.apk](https://github.com/gbetokuon-stack/XiaomiNotifixer/raw/main/XiaomiNotificationFixer.apk)**.
-2. Mở ứng dụng và kích hoạt các quyền cốt lõi:
-   * **FCM Keep-Alive Service**: Bật công tắc chạy nền.
-   * **Truy cập thông báo**: Cấp quyền Notification Listener.
-   * **Tiết kiệm pin**: Chọn **Không hạn chế** (No restrictions).
-   * **Tự khởi chạy**: Bật Autostart trong cài đặt HyperOS.
-   * (Tùy chọn khuyến nghị): Kết nối với **Shizuku** -> Chọn ứng dụng cần fix -> Nhấn **Áp Dụng Fix Triệt Để**.
-3. **Khóa đa nhiệm (Lock in Recents):** Vuốt mở đa nhiệm -> Nhấn giữ vào app cần nhận thông báo -> Bấm biểu tượng Ổ Khóa.
+1. **Chu kỳ thích ứng (Adaptive Interval):**
+   * **Khi tắt màn hình:** Chu kỳ ping socket là **6 phút (360 giây)** — vừa khít bảng định tuyến NAT của nhà mạng, giảm 3 lần số lần đánh thức CPU.
+   * **Khi bật màn hình:** Giãn chu kỳ ra **15 phút** vì máy đang kết nối mạng chủ động.
+2. **Không dùng WakeLock:** Cho phép CPU đi vào chế độ ngủ sâu (Deep Sleep) bình thường.
+3. **Loại bỏ Reconnect lặp vô hạn:** Chỉ gửi tín hiệu khi kết nối thật sự mất, không ép Google Play Services bắt tay TLS liên tục.
+4. **Thông báo mức tối thiểu:** Không rung, không chuông, không làm sáng màn hình.
 
 ---
 
@@ -80,11 +91,21 @@ git clone https://github.com/gbetokuon-stack/XiaomiNotifixer.git
 cd XiaomiNotifixer
 ./gradlew assembleDebug
 ```
-File APK sau khi build nằm tại: `app/build/outputs/apk/debug/app-debug.apk` hoặc `XiaomiNotificationFixer.apk`.
+File APK sau khi build: `app/build/outputs/apk/debug/app-debug.apk` hoặc `XiaomiNotificationFixer.apk`.
+
+---
+
+## ❓ CÂU HỎI THƯỜNG GẶP (FAQ)
+
+* **App có an toàn với ứng dụng Ngân hàng và VNeID không?**  
+  Có, 100% an toàn. Không root, không can thiệp bộ nhớ app khác, không cần bật chế độ Developer Options khi sử dụng.
+* **Sau khi khởi động lại máy có cần mở lại app không?**  
+  Không cần. App tích hợp sẵn `BOOT_COMPLETED` để tự kích hoạt lại chạy nền.
 
 ---
 
 ## 📄 Bản Quyền
 
-Mã nguồn được phát hành theo giấy phép **MIT License**. Hoàn toàn an toàn, sử dụng API tiêu chuẩn của Android và ADB, không làm ảnh hưởng bảo hành hoặc hệ điều hành.
+Mã nguồn phát hành theo giấy phép **MIT License**. Tự do sử dụng, chỉnh sửa và chia sẻ.
+
 
