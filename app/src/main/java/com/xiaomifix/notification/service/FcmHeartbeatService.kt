@@ -27,14 +27,19 @@ class FcmHeartbeatService : Service() {
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
-    private var wakeLock: PowerManager.WakeLock? = null
+    private var powerManager: PowerManager? = null
 
     companion object {
         const val CHANNEL_ID = "fcm_keep_alive_channel"
         const val NOTIFICATION_ID = 1001
         const val ACTION_PING_UPDATE = "com.xiaomifix.notification.PING_UPDATE"
         const val EXTRA_STATUS = "extra_status"
-        const val PING_INTERVAL_MS = 120_000L // 2 phút giữ kết nối NAT
+
+        // Tối ưu tiết kiệm pin:
+        // - Khi tắt màn hình: 6 phút (360s) giữ tunnel NAT ổn định không bị nhà mạng ngắt
+        // - Khi bật màn hình: 15 phút (900s) vì thiết bị đang hoạt động, không cần ping liên tục
+        const val SCREEN_OFF_INTERVAL_MS = 360_000L
+        const val SCREEN_ON_INTERVAL_MS = 900_000L
 
         @Volatile
         var isRunning = false
@@ -44,14 +49,14 @@ class FcmHeartbeatService : Service() {
     override fun onCreate() {
         super.onCreate()
         isRunning = true
+        powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
         createNotificationChannel()
         startServiceInForeground()
-        acquireWakeLock()
         startHeartbeatLoop()
     }
 
     private fun startServiceInForeground() {
-        val notification = buildForegroundNotification("Đang duy trì kết nối push FCM...")
+        val notification = buildForegroundNotification("Bảo vệ kết nối push FCM (Chế độ siêu tiết kiệm pin)")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             ServiceCompat.startForeground(
                 this,
@@ -64,38 +69,29 @@ class FcmHeartbeatService : Service() {
         }
     }
 
-    private fun acquireWakeLock() {
-        val powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
-        wakeLock = powerManager?.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK,
-            "XiaomiNotificationFixer::FcmWakeLock"
-        )
-    }
-
     private fun startHeartbeatLoop() {
         serviceScope.launch {
             while (isActive) {
-                wakeLock?.acquire(1000)
+                val isScreenOn = powerManager?.isInteractive ?: false
+                val waitTime = if (isScreenOn) SCREEN_ON_INTERVAL_MS else SCREEN_OFF_INTERVAL_MS
+
+                // Chỉ ping khi cần thiết
                 val result = FcmPinger.pingFcmServer(applicationContext)
-                if (wakeLock?.isHeld == true) {
-                    try { wakeLock?.release() } catch (_: Exception) {}
-                }
 
                 val statusText = if (result.success) {
-                    "FCM Ping OK: ${result.latencyMs}ms"
+                    "FCM Ping OK: ${result.latencyMs}ms (Chu kỳ ${waitTime / 60000}p)"
                 } else {
                     "FCM Reconnect: ${result.message}"
                 }
 
-                updateNotification(statusText)
-
+                // Gửi broadcast nội bộ cho MainActivity nếu app đang mở
                 val updateIntent = Intent(ACTION_PING_UPDATE).apply {
                     putExtra(EXTRA_STATUS, statusText)
                     setPackage(packageName)
                 }
                 sendBroadcast(updateIntent)
 
-                delay(PING_INTERVAL_MS)
+                delay(waitTime)
             }
         }
     }
@@ -113,13 +109,9 @@ class FcmHeartbeatService : Service() {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
+            .setShowWhen(false)
             .build()
-    }
-
-    private fun updateNotification(content: String) {
-        val manager = getSystemService(NotificationManager::class.java)
-        manager?.notify(NOTIFICATION_ID, buildForegroundNotification(content))
     }
 
     private fun createNotificationChannel() {
@@ -127,10 +119,12 @@ class FcmHeartbeatService : Service() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 getString(R.string.channel_fcm_name),
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_MIN
             ).apply {
                 description = getString(R.string.channel_fcm_desc)
                 setShowBadge(false)
+                enableLights(false)
+                enableVibration(false)
             }
             val manager = getSystemService(NotificationManager::class.java)
             manager?.createNotificationChannel(channel)
@@ -144,12 +138,10 @@ class FcmHeartbeatService : Service() {
     override fun onDestroy() {
         isRunning = false
         serviceJob.cancel()
-        if (wakeLock?.isHeld == true) {
-            try { wakeLock?.release() } catch (_: Exception) {}
-        }
         super.onDestroy()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
 }
+
 

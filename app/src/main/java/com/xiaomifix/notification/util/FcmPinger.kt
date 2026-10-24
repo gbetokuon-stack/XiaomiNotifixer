@@ -11,7 +11,7 @@ object FcmPinger {
     private const val FCM_HOST = "mtalk.google.com"
     private const val FCM_PORT_PRIMARY = 5228
     private const val FCM_PORT_FALLBACK = 443
-    private const val TIMEOUT_MS = 3500
+    private const val TIMEOUT_MS = 2500
 
     data class PingResult(val success: Boolean, val latencyMs: Long, val message: String)
 
@@ -23,24 +23,26 @@ object FcmPinger {
             try {
                 socket.connect(InetSocketAddress(FCM_HOST, FCM_PORT_PRIMARY), TIMEOUT_MS)
             } catch (_: Exception) {
-                // Thử cổng dự phòng 443 nếu cổng 5228 bị firewall chặn
                 socket.close()
                 socket = Socket()
                 socket.connect(InetSocketAddress(FCM_HOST, FCM_PORT_FALLBACK), TIMEOUT_MS)
             }
             val latency = System.currentTimeMillis() - start
 
-            // Broadcast GCM reconnect trigger to Google Play Services
-            val gcmIntent = Intent("com.google.android.intent.action.GCM_RECONNECT").apply {
-                setPackage("com.google.android.gms")
-            }
-            try {
-                context.sendBroadcast(gcmIntent)
-            } catch (_: Exception) {}
-
+            // KHI KẾT NỐI THÀNH CÔNG: KHÔNG broadcast GCM_RECONNECT để tránh ép Google Play Services
+            // bắt tay TLS lại gây hao pin nghiêm trọng.
             PingResult(true, latency, "FCM Socket OK (${latency}ms)")
         } catch (e: Exception) {
             val latency = System.currentTimeMillis() - start
+
+            // CHỈ KHI KẾT NỐI THẤT BẠI: Mới kích hoạt GCM_RECONNECT để khôi phục socket
+            try {
+                val gcmIntent = Intent("com.google.android.intent.action.GCM_RECONNECT").apply {
+                    setPackage("com.google.android.gms")
+                }
+                context.sendBroadcast(gcmIntent)
+            } catch (_: Exception) {}
+
             PingResult(false, latency, "Lỗi ping FCM: ${e.message}")
         } finally {
             try {
@@ -49,3 +51,4 @@ object FcmPinger {
         }
     }
 }
+
