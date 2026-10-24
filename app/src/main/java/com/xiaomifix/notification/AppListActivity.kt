@@ -67,18 +67,57 @@ class AppListActivity : AppCompatActivity() {
         b.progressBar.visibility = View.VISIBLE
         lifecycleScope.launch(Dispatchers.IO) {
             val pm = packageManager
-            val packages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+            val myPkg = packageName
             val list = mutableListOf<AppInfo>()
-            for (pkg in packages) {
-                val isSystem = (pkg.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-                val isTarget = commonPkgs.contains(pkg.packageName)
-                if (!isSystem || isTarget) {
-                    val label = pm.getApplicationLabel(pkg).toString()
-                    val icon = try { pm.getApplicationIcon(pkg) } catch (_: Exception) { null }
-                    list.add(AppInfo(label, pkg.packageName, icon, isSelected = isTarget))
-                }
+            val seenPkgs = mutableSetOf<String>()
+
+            // 1. Lấy tất cả ứng dụng có Launcher Intent (app người dùng cài đặt và mở được)
+            val mainIntent = android.content.Intent(android.content.Intent.ACTION_MAIN, null).apply {
+                addCategory(android.content.Intent.CATEGORY_LAUNCHER)
             }
-            list.sortByDescending { commonPkgs.contains(it.packageName) }
+            val resolveInfos = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                pm.queryIntentActivities(mainIntent, PackageManager.ResolveInfoFlags.of(0L))
+            } else {
+                @Suppress("DEPRECATION")
+                pm.queryIntentActivities(mainIntent, 0)
+            }
+
+            for (ri in resolveInfos) {
+                val pkgName = ri.activityInfo.packageName
+                if (pkgName == myPkg || seenPkgs.contains(pkgName)) continue
+                seenPkgs.add(pkgName)
+
+                val label = ri.loadLabel(pm).toString()
+                val icon = try { ri.loadIcon(pm) } catch (_: Exception) { null }
+                val isTarget = commonPkgs.contains(pkgName)
+                list.add(AppInfo(label, pkgName, icon, isSelected = isTarget))
+            }
+
+            // 2. Dự phòng: lấy thêm từ getInstalledApplications nếu có app chưa được add
+            try {
+                val installed = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    pm.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0L))
+                } else {
+                    @Suppress("DEPRECATION")
+                    pm.getInstalledApplications(0)
+                }
+                for (app in installed) {
+                    val pkgName = app.packageName
+                    if (pkgName == myPkg || seenPkgs.contains(pkgName)) continue
+                    val isSystem = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                    val isTarget = commonPkgs.contains(pkgName)
+                    if (!isSystem || isTarget) {
+                        seenPkgs.add(pkgName)
+                        val label = pm.getApplicationLabel(app).toString()
+                        val icon = try { pm.getApplicationIcon(app) } catch (_: Exception) { null }
+                        list.add(AppInfo(label, pkgName, icon, isSelected = isTarget))
+                    }
+                }
+            } catch (_: Exception) {}
+
+            list.sortWith(compareByDescending<AppInfo> { commonPkgs.contains(it.packageName) }
+                .thenBy { it.appName.lowercase() })
+
             withContext(Dispatchers.Main) {
                 appList.clear()
                 appList.addAll(list)
