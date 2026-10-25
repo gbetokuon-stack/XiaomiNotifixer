@@ -12,6 +12,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.xiaomifix.notification.databinding.ActivityMainBinding
 import com.xiaomifix.notification.service.FcmHeartbeatService
 import com.xiaomifix.notification.util.MiuiHelper
@@ -51,6 +53,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         b = ActivityMainBinding.inflate(layoutInflater)
         setContentView(b.root)
+        ViewCompat.setOnApplyWindowInsetsListener(b.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
         initViews()
         try {
             Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)

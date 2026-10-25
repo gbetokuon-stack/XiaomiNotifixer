@@ -11,6 +11,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +41,11 @@ class AppListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         b = ActivityAppListBinding.inflate(layoutInflater)
         setContentView(b.root)
+        ViewCompat.setOnApplyWindowInsetsListener(b.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         adapter = AppAdapter(displayedList) { app ->
             MiuiHelper.openBatterySaverSettings(this, app.packageName)

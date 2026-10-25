@@ -27,6 +27,8 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,6 +38,8 @@
 
         <activity
             android:name=".AppListActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false"
             android:label="@string/select_apps"
             android:parentActivityName=".MainActivity" />
