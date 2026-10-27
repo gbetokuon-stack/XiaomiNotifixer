@@ -10,14 +10,17 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.xiaomifix.notification.databinding.ActivityMainBinding
 import com.xiaomifix.notification.service.FcmHeartbeatService
 import com.xiaomifix.notification.util.MiuiHelper
 import com.xiaomifix.notification.util.ShizukuHelper
+import kotlinx.coroutines.launch
 import rikka.shizuku.Shizuku
 
 class MainActivity : AppCompatActivity() {
@@ -38,7 +41,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
-        updateShizuku(ShizukuHelper.hasPermission())
+        val hasPerm = ShizukuHelper.hasPermission()
+        updateShizuku(hasPerm)
+        if (hasPerm) {
+            lifecycleScope.launch {
+                ShizukuHelper.optimizeSelfAndSystem(applicationContext)
+            }
+        }
     }
 
     private val binderDeadListener = Shizuku.OnBinderDeadListener {
@@ -46,7 +55,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val shizukuListener = Shizuku.OnRequestPermissionResultListener { _, res ->
-        updateShizuku(res == PackageManager.PERMISSION_GRANTED)
+        val granted = (res == PackageManager.PERMISSION_GRANTED)
+        updateShizuku(granted)
+        if (granted) {
+            lifecycleScope.launch {
+                ShizukuHelper.optimizeSelfAndSystem(applicationContext)
+                Toast.makeText(this@MainActivity, "✦ Tự động tối ưu hệ thống & App Fix qua Shizuku!", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,6 +96,23 @@ class MainActivity : AppCompatActivity() {
         b.btnBatterySaver.setOnClickListener { MiuiHelper.openBatterySaverSettings(this) }
         b.btnBatteryOpt.setOnClickListener { MiuiHelper.requestIgnoreBatteryOptimizations(this) }
         b.btnNotificationListener.setOnClickListener { MiuiHelper.openNotificationListenerSettings(this) }
+
+        b.layoutShizukuPanel.setOnClickListener {
+            if (!ShizukuHelper.isAvailable()) {
+                AlertDialog.Builder(this)
+                    .setTitle("🔮 Trạng thái Shizuku")
+                    .setMessage("Shizuku chưa chạy trên thiết bị.\n\nNếu muốn dùng Shizuku để tối ưu hàng loạt tự động:\n1. Mở app Shizuku\n2. Bật Wireless Debugging để Start Shizuku\n3. Sau khi tối ưu xong, tắt Wireless Debugging để dùng VNeID bình thường.")
+                    .setPositiveButton("Đã hiểu", null)
+                    .show()
+            } else if (!ShizukuHelper.hasPermission()) {
+                ShizukuHelper.requestPermission(1001)
+            } else {
+                lifecycleScope.launch {
+                    ShizukuHelper.optimizeSelfAndSystem(applicationContext)
+                    Toast.makeText(this@MainActivity, "✦ Đã tối ưu hệ thống & tự khởi chạy cho App Fix!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun checkAndStart() {
@@ -129,9 +162,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updatePermissionIndicators() {
+        if (MiuiHelper.isBatteryOptimizationIgnored(this)) {
+            b.tvBatteryOptStatus.text = "✓ ĐÃ CẤP"
+            b.tvBatteryOptStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_neon_green))
+        } else {
+            b.tvBatteryOptStatus.text = "Cho Phép ›"
+            b.tvBatteryOptStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
+        }
+
+        if (MiuiHelper.isNotificationListenerEnabled(this)) {
+            b.tvNotificationListenerStatus.text = "✓ ĐÃ CẤP"
+            b.tvNotificationListenerStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_neon_green))
+        } else {
+            b.tvNotificationListenerStatus.text = "Bất Tử ›"
+            b.tvNotificationListenerStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_neon_green))
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-        updateShizuku(ShizukuHelper.hasPermission())
+        val hasShizuku = ShizukuHelper.hasPermission()
+        updateShizuku(hasShizuku)
+        if (hasShizuku) {
+            lifecycleScope.launch {
+                ShizukuHelper.optimizeSelfAndSystem(applicationContext)
+            }
+        }
+        updatePermissionIndicators()
         b.switchFcmHeartbeat.isChecked = FcmHeartbeatService.isRunning
         updateHeartbeatUi(FcmHeartbeatService.isRunning)
         val filter = IntentFilter(FcmHeartbeatService.ACTION_PING_UPDATE)

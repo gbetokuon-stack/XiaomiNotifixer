@@ -16,6 +16,12 @@ object FcmPinger {
     data class PingResult(val success: Boolean, val latencyMs: Long, val message: String)
 
     suspend fun pingFcmServer(context: Context): PingResult = withContext(Dispatchers.IO) {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+        val activeNetwork = cm?.activeNetworkInfo
+        if (activeNetwork == null || !activeNetwork.isConnected) {
+            return@withContext PingResult(false, 0, "Không có kết nối mạng")
+        }
+
         val start = System.currentTimeMillis()
         var socket: Socket? = null
         try {

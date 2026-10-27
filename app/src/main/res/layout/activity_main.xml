@@ -188,10 +188,13 @@
 
             <!-- SHIZUKU / ADB CYBER PANEL -->
             <LinearLayout
+                android:id="@+id/layoutShizukuPanel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_card_cyber"
+                android:clickable="true"
+                android:focusable="true"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -436,6 +439,7 @@
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/tvBatteryOptStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cho Phép ›"
@@ -497,6 +501,7 @@
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/tvNotificationListenerStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Bất Tử ›"

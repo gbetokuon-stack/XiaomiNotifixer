@@ -32,9 +32,22 @@ class AppListActivity : AppCompatActivity() {
     private lateinit var adapter: AppAdapter
 
     private val commonPkgs = setOf(
-        "com.zing.zalo", "com.facebook.orca", "org.telegram.messenger",
-        "org.thunderdog.challegram", "com.whatsapp", "com.google.android.gm",
-        "com.microsoft.office.outlook", "com.discord", "com.viber.voip"
+        // OTT & Nhắn tin
+        "com.zing.zalo", "com.facebook.orca", "com.facebook.katana", "com.facebook.lite",
+        "org.telegram.messenger", "org.thunderdog.challegram", "com.whatsapp",
+        "com.google.android.gm", "com.microsoft.office.outlook", "com.discord",
+        "com.viber.voip", "com.skype.raider", "com.slack", "com.tencent.mm",
+        "jp.naver.line.android", "com.google.android.apps.messaging",
+        // MXH & Widget
+        "com.instagram.android", "com.locket.Locket", "com.ss.android.ugc.trill",
+        "com.zhiliaoapp.musically", "com.twitter.android",
+        // Mua sắm & Gọi xe / Giao đồ
+        "com.shopee.vn", "com.lazada.android", "xyz.be.customer",
+        "com.grabtaxi.passenger", "com.deliverynow",
+        // Ngân hàng & Ví điện tử
+        "com.mservice.momotransfer", "vn.com.vng.zalopay", "com.VCB",
+        "com.vnpay.bidv", "vn.com.techcombank.bb.app", "com.techcombank.mobile",
+        "com.mbmobile", "com.tpb.mb.gprsandroid", "com.vietinbank.ipay"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +78,16 @@ class AppListActivity : AppCompatActivity() {
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+
+        b.btnSelectAll.setOnClickListener {
+            appList.forEach { it.isSelected = true }
+            adapter.notifyDataSetChanged()
+        }
+
+        b.btnDeselectAll.setOnClickListener {
+            appList.forEach { it.isSelected = false }
+            adapter.notifyDataSetChanged()
+        }
 
         b.btnApplyBatch.setOnClickListener { applyBatchFix() }
         loadApps()
@@ -145,12 +168,12 @@ class AppListActivity : AppCompatActivity() {
         if (ShizukuHelper.hasPermission()) {
             b.progressBar.visibility = View.VISIBLE
             lifecycleScope.launch {
-                var c = 0
-                for (a in selected) {
-                    if (ShizukuHelper.optimizeAppForNotifications(a.packageName)) c++
-                }
+                val pkgList = selected.map { it.packageName }
+                val count = ShizukuHelper.optimizeApps(pkgList)
+                // Tự động tối ưu luôn cả app fix và hệ thống
+                ShizukuHelper.optimizeSelfAndSystem(applicationContext)
                 b.progressBar.visibility = View.GONE
-                Toast.makeText(this@AppListActivity, "Đã tối ưu $c app qua Shizuku!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AppListActivity, "✦ Đã tối ưu siêu tốc $count app qua Shizuku!", Toast.LENGTH_LONG).show()
             }
         } else {
             AlertDialog.Builder(this)

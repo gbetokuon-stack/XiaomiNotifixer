@@ -63,25 +63,76 @@ object ShizukuHelper {
     suspend fun optimizeAppForNotifications(packageName: String): Boolean = withContext(Dispatchers.IO) {
         if (!hasPermission()) return@withContext false
         val commands = listOf(
-            // Whitelist Doze Mode (Device Idle)
             "dumpsys deviceidle whitelist +$packageName",
-            // AppOps chuẩn Android & MIUI/HyperOS
             "cmd appops set $packageName RUN_IN_BACKGROUND allow",
             "cmd appops set $packageName RUN_ANY_IN_BACKGROUND allow",
             "cmd appops set $packageName AUTO_START allow",
-            "cmd appops set $packageName 10008 allow", // OP_AUTO_START trong mã nguồn MIUI
+            "cmd appops set $packageName 10008 allow",
             "cmd appops set $packageName WAKE_LOCK allow",
             "cmd appops set $packageName START_FOREGROUND allow",
             "cmd appops set $packageName POST_NOTIFICATION allow",
             "cmd appops set $packageName SCHEDULE_EXACT_ALARM allow",
             "cmd appops set $packageName ACCESS_RESTRICTED_SETTINGS allow",
-            // Can thiệp HyperOS / MIUI PowerKeeper (Tiết kiệm pin không hạn chế)
             "dumpsys power set-adaptive-power-saver-enabled false",
             "cmd power set-mode 0"
         )
-        for (cmd in commands) {
-            runCommand(cmd)
+        runCommand(commands.joinToString(" ; "))
+        true
+    }
+
+    suspend fun optimizeApps(packageNames: List<String>): Int = withContext(Dispatchers.IO) {
+        if (!hasPermission() || packageNames.isEmpty()) return@withContext 0
+        val sb = StringBuilder()
+        for (pkg in packageNames) {
+            sb.append("dumpsys deviceidle whitelist +$pkg ; ")
+            sb.append("cmd appops set $pkg RUN_IN_BACKGROUND allow ; ")
+            sb.append("cmd appops set $pkg RUN_ANY_IN_BACKGROUND allow ; ")
+            sb.append("cmd appops set $pkg AUTO_START allow ; ")
+            sb.append("cmd appops set $pkg 10008 allow ; ")
+            sb.append("cmd appops set $pkg WAKE_LOCK allow ; ")
+            sb.append("cmd appops set $pkg START_FOREGROUND allow ; ")
+            sb.append("cmd appops set $pkg POST_NOTIFICATION allow ; ")
+            sb.append("cmd appops set $pkg SCHEDULE_EXACT_ALARM allow ; ")
+            sb.append("cmd appops set $pkg ACCESS_RESTRICTED_SETTINGS allow ; ")
         }
+        sb.append("dumpsys power set-adaptive-power-saver-enabled false ; cmd power set-mode 0")
+        runCommand(sb.toString())
+        packageNames.size
+    }
+
+    suspend fun optimizeSelfAndSystem(context: android.content.Context): Boolean = withContext(Dispatchers.IO) {
+        if (!hasPermission()) return@withContext false
+        val myPkg = context.packageName
+        val commands = listOf(
+            // Whitelist app fix & Google Play Services trong Doze
+            "dumpsys deviceidle whitelist +$myPkg",
+            "dumpsys deviceidle whitelist +com.google.android.gms",
+            "dumpsys deviceidle whitelist +com.google.android.gsf",
+            // Cấp toàn quyền chạy ngầm & autostart cho app fix
+            "cmd appops set $myPkg RUN_IN_BACKGROUND allow",
+            "cmd appops set $myPkg RUN_ANY_IN_BACKGROUND allow",
+            "cmd appops set $myPkg AUTO_START allow",
+            "cmd appops set $myPkg 10008 allow",
+            "cmd appops set $myPkg WAKE_LOCK allow",
+            "cmd appops set $myPkg START_FOREGROUND allow",
+            "cmd appops set $myPkg POST_NOTIFICATION allow",
+            "cmd appops set $myPkg SCHEDULE_EXACT_ALARM allow",
+            "cmd appops set $myPkg ACCESS_RESTRICTED_SETTINGS allow",
+            "cmd appops set $myPkg SYSTEM_ALERT_WINDOW allow",
+            // Cấp quyền cho Google Play Services không bị ngủ đông
+            "cmd appops set com.google.android.gms AUTO_START allow",
+            "cmd appops set com.google.android.gms 10008 allow",
+            "cmd appops set com.google.android.gms RUN_IN_BACKGROUND allow",
+            // Vô hiệu hóa Phantom Process Killer trên Android 12-15
+            "/system/bin/device_config put activity_manager max_phantom_processes 2147483647",
+            // Rút ngắn chu kỳ heartbeat của GMS xuống 120s
+            "settings put global gcm_heartbeat_interval_wifi 120000",
+            "settings put global gcm_heartbeat_interval_mobile 120000",
+            // Tắt giới hạn tiết kiệm pin thích ứng
+            "dumpsys power set-adaptive-power-saver-enabled false",
+            "cmd power set-mode 0"
+        )
+        runCommand(commands.joinToString(" ; "))
         true
     }
 }

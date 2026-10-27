@@ -4,14 +4,15 @@ Giải pháp toàn diện khắc phục triệt để vấn đề **chậm, tr�
 
 > 💡 **Tương thích 100% với ứng dụng Ngân hàng, Ví điện tử và VNeID.** Không cần Root, không cần bật chế độ Nhà phát triển (Developer Options).
 
-### 🆕 Có gì mới ở phiên bản 5.0.2
-- **Tương thích Shizuku Binder IPC**: Bổ sung `ShizukuProvider` vào `AndroidManifest.xml` và tích hợp `OnBinderReceivedListenerSticky`, tự động nhận diện quyền Shizuku tức thì khi kết nối.
-- **Sửa lỗi hiển thị Quản lý App**: Chuyển sang cơ chế truy vấn `queryIntentActivities` kết hợp `ResolveInfoFlags`, quét và hiển thị đầy đủ 100% ứng dụng người dùng cài đặt trên Android 11+ / HyperOS (không còn bị ẩn do Package Visibility).
-- **Tối ưu tự động chuyên sâu HyperOS**: Lệnh batch qua Shizuku nạp thêm mã op nội bộ Xiaomi `10008` (`OP_AUTO_START` của MIUI SecurityCenter), bypass Doze whitelist và vô hiệu hóa cơ chế giết tiến trình ngầm PowerKeeper.
-- **Tương thích VNeID, Ngân hàng, 4G, VPN, DNS**: Hướng dẫn dùng song song Shizuku không xung đột kiểm tra môi trường debug của VNeID.
+### 🆕 Có gì mới ở phiên bản 5.0.3
+- **Tự động tối ưu chính App Fix & Hệ thống (`Auto Self-Boost`)**: Ngay khi Shizuku kết nối, app tự động whitelist chính nó và `Google Play Services` trong Doze, cấp quyền `AUTO_START` + `10008`, tắt Phantom Process Killer (`max_phantom_processes 2147483647`), rút ngắn chu kỳ FCM về 120s — **không còn phải gạt tay thủ công cho app Fix**.
+- **Tối ưu tốc độ thực thi lệnh Shizuku gấp 10 lần (`Batch Command Pipeline`)**: Gom toàn bộ lệnh qua 1 tiến trình shell duy nhất, khắc phục hiện tượng delay/treo IPC khi xử lý danh sách nhiều app.
+- **Bổ sung nút Chọn Tất Cả / Bỏ Chọn**: Tiết kiệm thao tác, hỗ trợ tích chọn 1 chạm cho toàn bộ ứng dụng.
+- **Mở rộng danh sách nhận diện app tự động**: Bổ sung sẵn 30+ app OTT, mạng xã hội, mua sắm và ngân hàng phổ biến (Facebook, Instagram, Locket, TikTok, Shopee, Grab, MoMo, Vietcombank, Techcombank, MB Bank, v.v.).
+- **Trạng thái trực quan HUD**: Hiển thị nhãn `✓ ĐÃ CẤP` màu xanh neon ngay trên giao diện chính khi đã hoàn thành các quyền hệ thống. Tapping vào thẻ Shizuku cho phép kích hoạt / kiểm tra quyền tức thì.
+- **Tối ưu kiểm tra mạng FCM Pinger**: Tránh đánh thức socket không cần thiết khi thiết bị ở chế độ máy bay hoặc mất mạng.
 
 ---
-
 ---
 
 ## 📥 Tải Nhanh File Cài Đặt (APK)

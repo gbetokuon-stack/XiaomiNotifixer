@@ -25,6 +25,12 @@ object MiuiHelper {
         return powerManager?.isIgnoringBatteryOptimizations(context.packageName) ?: false
     }
 
+    fun isNotificationListenerEnabled(context: Context): Boolean {
+        val enabledListeners = Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners") ?: return false
+        val myComponent = ComponentName(context, com.xiaomifix.notification.service.NotificationKeepAliveListener::class.java).flattenToString()
+        return enabledListeners.contains(myComponent) || enabledListeners.contains(context.packageName)
+    }
+
     fun openAutostart(context: Context) {
         val intents = listOf(
             Intent().setComponent(ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity")),
