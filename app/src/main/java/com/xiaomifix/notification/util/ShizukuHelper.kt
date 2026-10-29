@@ -46,7 +46,13 @@ object ShizukuHelper {
                 String::class.java
             )
             method.isAccessible = true
-            val process = method.invoke(null, arrayOf("sh", "-c", command), null, null) as Process
+            // Gộp stderr vào stdout để không bỏ sót lỗi và tránh đầy buffer.
+            val process = method.invoke(
+                null,
+                arrayOf("sh", "-c", "$command 2>&1"),
+                null,
+                null
+            ) as Process
             val reader = BufferedReader(InputStreamReader(process.inputStream))
             val output = StringBuilder()
             var line: String?
@@ -73,7 +79,7 @@ object ShizukuHelper {
             "cmd appops set $packageName POST_NOTIFICATION allow",
             "cmd appops set $packageName SCHEDULE_EXACT_ALARM allow",
             "cmd appops set $packageName ACCESS_RESTRICTED_SETTINGS allow",
-            "dumpsys power set-adaptive-power-saver-enabled false",
+            "cmd power set-adaptive-power-saver-enabled false",
             "cmd power set-mode 0"
         )
         runCommand(commands.joinToString(" ; "))
@@ -82,21 +88,30 @@ object ShizukuHelper {
 
     suspend fun optimizeApps(packageNames: List<String>): Int = withContext(Dispatchers.IO) {
         if (!hasPermission() || packageNames.isEmpty()) return@withContext 0
-        val sb = StringBuilder()
-        for (pkg in packageNames) {
-            sb.append("dumpsys deviceidle whitelist +$pkg ; ")
-            sb.append("cmd appops set $pkg RUN_IN_BACKGROUND allow ; ")
-            sb.append("cmd appops set $pkg RUN_ANY_IN_BACKGROUND allow ; ")
-            sb.append("cmd appops set $pkg AUTO_START allow ; ")
-            sb.append("cmd appops set $pkg 10008 allow ; ")
-            sb.append("cmd appops set $pkg WAKE_LOCK allow ; ")
-            sb.append("cmd appops set $pkg START_FOREGROUND allow ; ")
-            sb.append("cmd appops set $pkg POST_NOTIFICATION allow ; ")
-            sb.append("cmd appops set $pkg SCHEDULE_EXACT_ALARM allow ; ")
-            sb.append("cmd appops set $pkg ACCESS_RESTRICTED_SETTINGS allow ; ")
+
+        // Chia nhỏ danh sách để tránh vượt giới hạn độ dài đối số của shell (E2BIG)
+        // khi người dùng chọn rất nhiều ứng dụng cùng lúc.
+        packageNames.chunked(BATCH_SIZE).forEach { batch ->
+            val sb = StringBuilder()
+            for (pkg in batch) {
+                sb.append("dumpsys deviceidle whitelist +$pkg ; ")
+                sb.append("cmd appops set $pkg RUN_IN_BACKGROUND allow ; ")
+                sb.append("cmd appops set $pkg RUN_ANY_IN_BACKGROUND allow ; ")
+                sb.append("cmd appops set $pkg AUTO_START allow ; ")
+                sb.append("cmd appops set $pkg 10008 allow ; ")
+                sb.append("cmd appops set $pkg WAKE_LOCK allow ; ")
+                sb.append("cmd appops set $pkg START_FOREGROUND allow ; ")
+                sb.append("cmd appops set $pkg POST_NOTIFICATION allow ; ")
+                sb.append("cmd appops set $pkg SCHEDULE_EXACT_ALARM allow ; ")
+                sb.append("cmd appops set $pkg ACCESS_RESTRICTED_SETTINGS allow ; ")
+            }
+            runCommand(sb.toString())
         }
-        sb.append("dumpsys power set-adaptive-power-saver-enabled false ; cmd power set-mode 0")
-        runCommand(sb.toString())
+
+        // Các lệnh toàn hệ thống chỉ cần chạy một lần.
+        runCommand(
+            "cmd power set-adaptive-power-saver-enabled false ; cmd power set-mode 0"
+        )
         packageNames.size
     }
 
@@ -129,10 +144,12 @@ object ShizukuHelper {
             "settings put global gcm_heartbeat_interval_wifi 120000",
             "settings put global gcm_heartbeat_interval_mobile 120000",
             // Tắt giới hạn tiết kiệm pin thích ứng
-            "dumpsys power set-adaptive-power-saver-enabled false",
+            "cmd power set-adaptive-power-saver-enabled false",
             "cmd power set-mode 0"
         )
         runCommand(commands.joinToString(" ; "))
         true
     }
+
+    private const val BATCH_SIZE = 25
 }

@@ -1,39 +1,100 @@
 <resources>
     <string name="app_name">Xiaomi Notification Fixer</string>
-    <string name="title_hyperos_fix">Xiaomi &amp; HyperOS Notification Fix</string>
-    <string name="subtitle_device">Tối ưu push thông báo cho Xiaomi 15 Ultra / MIUI</string>
-    <string name="fcm_heartbeat_title">FCM Keep-Alive Service</string>
-    <string name="fcm_heartbeat_desc">Duy trì kết nối socket Google FCM (mtalk.google.com:5228), chống rớt thông báo do NAT timeout khi tắt màn hình.</string>
-    <string name="service_running">Đang hoạt động</string>
-    <string name="service_stopped">Đã dừng</string>
-    <string name="enable_service">Bật Service</string>
-    <string name="disable_service">Tắt Service</string>
-    
-    <string name="section_miui_settings">Cài Đặt Cốt Lõi HyperOS / MIUI</string>
-    <string name="btn_autostart">1. Quyền Tự Khởi Chạy (Autostart)</string>
-    <string name="desc_autostart">Bắt buộc bật cho Zalo, Messenger, Telegram để nhận tin nhắn khi tắt app.</string>
-    
-    <string name="btn_battery_saver">2. Tiết Kiệm Pin -> Không Hạn Chế</string>
-    <string name="desc_battery_saver">Tắt cơ chế MIUI PowerKeeper tự động giết tiến trình sau 10 phút khóa màn hình.</string>
+    <string name="title_hyperos_fix">Xiaomi Notifixer</string>
 
-    <string name="btn_battery_optimization">3. Bỏ Tối Ưu Hóa Pin Android (Doze)</string>
-    <string name="desc_battery_optimization">Thêm app vào danh sách trắng Doze của hệ thống Android.</string>
+    <string name="fcm_heartbeat_title">Giữ kết nối thông báo</string>
+    <string name="fcm_heartbeat_desc">Duy trì socket FCM khi màn hình tắt</string>
 
-    <string name="btn_notification_listener">4. Quyền Đọc Thông Báo (Chống Kill)</string>
-    <string name="desc_notification_listener">Cấp quyền Notification Listener giúp app có priority bất tử trên HyperOS.</string>
+    <string name="section_miui_settings">Thiết lập hệ thống</string>
+    <string name="permission_intro">Hoàn tất các mục này để HyperOS không tắt thông báo.</string>
 
-    <string name="section_shizuku">Công Cụ Tự Động Hóa 1-Chạm (Shizuku / ADB)</string>
-    <string name="shizuku_desc">Tự động gán quyền chạy nền (RUN_IN_BACKGROUND) &amp; whitelist Doze cho toàn bộ ứng dụng bạn chọn mà không cần can thiệp thủ công từng app.</string>
-    <string name="btn_manage_apps">Chọn Ứng Dụng Cần Fix (Zalo, Messenger…)</string>
-    <string name="shizuku_status_active">Shizuku: Đã kết nối</string>
-    <string name="shizuku_status_inactive">Shizuku: Chưa kích hoạt (Nhấn để xem hướng dẫn)</string>
+    <string name="btn_notification_permission">Quyền thông báo</string>
+    <string name="desc_notification_permission">Hiển thị trạng thái dịch vụ</string>
+    <string name="btn_autostart">Tự khởi chạy</string>
+    <string name="desc_autostart">Cho phép app chạy lại sau khi khởi động máy.</string>
+    <string name="btn_battery_saver">Tiết kiệm pin</string>
+    <string name="desc_battery_saver">Chọn Không hạn chế trong cài đặt pin của HyperOS.</string>
+    <string name="btn_battery_optimization">Miễn trừ Doze</string>
+    <string name="desc_battery_optimization">Không bị hệ thống đóng băng khi máy ngủ.</string>
+    <string name="btn_notification_listener">Quyền đọc thông báo</string>
+    <string name="desc_notification_listener">Giữ tiến trình ở mức ưu tiên cao nhất.</string>
 
-    <string name="select_apps">Chọn ứng dụng sửa thông báo</string>
+    <string name="section_shizuku">Tự động hóa</string>
+    <string name="shizuku_title">Shizuku</string>
+    <string name="shizuku_short_desc">Cấp quyền chạy nền hàng loạt</string>
+    <string name="shizuku_desc">Áp dụng whitelist Doze, autostart và quyền chạy nền cho nhiều ứng dụng cùng lúc. Chạm vào thẻ để tối ưu ngay.</string>
+    <string name="btn_manage_apps">Chọn ứng dụng</string>
+    <string name="footer_safety">Không cần root. An toàn cho ứng dụng ngân hàng và VNeID.</string>
+
+    <string name="select_apps">Chọn ứng dụng</string>
     <string name="search_apps">Tìm kiếm ứng dụng…</string>
-    <string name="btn_batch_fix">Áp Dụng Fix Triệt Để</string>
-    <string name="msg_service_started">FCM Keep-Alive Service đã được kích hoạt</string>
-    <string name="msg_service_stopped">FCM Keep-Alive Service đã tắt</string>
-    <string name="msg_fix_success">Đã áp dụng quyền nền tối đa cho %1$s</string>
-    <string name="channel_fcm_name">FCM Keep-Alive Service</string>
-    <string name="channel_fcm_desc">Thông báo duy trì FCM Socket không bị đóng</string>
+
+    <!-- Trạng thái -->
+    <string name="status_protected">Đang bảo vệ</string>
+    <string name="status_reconnecting">Đang thử lại</string>
+    <string name="status_off">Đã tắt</string>
+    <string name="status_connecting">Đang kết nối…</string>
+    <string name="status_no_data">Chưa có dữ liệu</string>
+    <string name="status_granted">Đã cấp</string>
+    <string name="status_action_grant">Cấp quyền</string>
+    <string name="status_action_open">Mở</string>
+    <string name="status_shizuku_connected">Đã kết nối</string>
+    <string name="status_shizuku_permission">Cần cấp quyền</string>
+    <string name="status_shizuku_offline">Chưa kết nối</string>
+    <string name="permission_progress">%1$d/3 đã cấp</string>
+    <string name="permission_progress_zero">0/3 đã cấp</string>
+
+    <!-- Trạng thái FCM -->
+    <string name="ping_no_network">Không có mạng • đang chờ kết nối</string>
+    <string name="ping_ok">FCM ổn định (%1$dms)</string>
+    <string name="ping_lost">Mất kết nối FCM • sẽ thử lại</string>
+
+    <!-- Thông báo dịch vụ -->
+    <string name="msg_service_started">Đã bật dịch vụ giữ kết nối thông báo</string>
+    <string name="msg_service_stopped">Đã tắt dịch vụ giữ kết nối thông báo</string>
+    <string name="msg_service_start_failed">Không thể bật dịch vụ: %1$s</string>
+    <string name="msg_service_not_running">Dịch vụ nền không thể khởi động trên thiết bị này.</string>
+    <string name="msg_self_optimized">Đã tối ưu hệ thống qua Shizuku</string>
+    <string name="msg_shizuku_granted">Đã cấp quyền Shizuku</string>
+    <string name="msg_shizuku_denied">Chưa được cấp quyền Shizuku</string>
+    <string name="msg_select_one_app">Chọn ít nhất một ứng dụng</string>
+    <string name="msg_batch_done">Đã tối ưu %1$d ứng dụng</string>
+    <string name="msg_batch_failed">Không thể tối ưu. Kiểm tra lại quyền Shizuku.</string>
+    <string name="msg_shizuku_not_installed">Chưa cài app Shizuku. Tải trên Google Play hoặc GitHub.</string>
+    <string name="msg_cannot_open_battery_settings">Không thể mở cài đặt pin: %1$s</string>
+    <string name="msg_cannot_open_settings">Không thể mở cài đặt: %1$s</string>
+
+    <!-- Hộp thoại -->
+    <string name="dialog_shizuku_title">Shizuku</string>
+    <string name="dialog_shizuku_message">Shizuku chưa chạy trên thiết bị.\n\n1. Mở app Shizuku\n2. Bật Wireless Debugging để khởi động Shizuku\n3. Quay lại đây và cấp quyền\n\nSau khi tối ưu xong, bạn có thể tắt Wireless Debugging để dùng VNeID bình thường.</string>
+    <string name="dialog_shizuku_batch_message">Cấp quyền Shizuku để tối ưu tự động. Nếu chưa cài Shizuku, bạn có thể chạm vào từng ứng dụng để mở cài đặt pin HyperOS.</string>
+    <string name="dialog_shizuku_unavailable_message">Shizuku chưa chạy. Hãy mở Shizuku và bật Wireless Debugging, sau đó quay lại thử lại.</string>
+    <string name="dialog_notification_permission_title">Quyền thông báo</string>
+    <string name="dialog_notification_permission_message">Bạn đã từ chối quyền thông báo. Mở cài đặt ứng dụng để bật lại quyền này.</string>
+    <string name="action_grant">Cấp quyền</string>
+    <string name="action_open_shizuku">Mở Shizuku</string>
+    <string name="action_open_settings">Mở cài đặt</string>
+    <string name="action_later">Để sau</string>
+    <string name="action_close">Đóng</string>
+    <string name="action_back">Quay lại</string>
+
+    <!-- Danh sách ứng dụng -->
+    <string name="selection_none">Chưa chọn ứng dụng</string>
+    <string name="selection_count">Đã chọn %1$d ứng dụng</string>
+    <string name="apply_none">Chọn ứng dụng để áp dụng</string>
+    <string name="apply_count">Áp dụng cho %1$d ứng dụng</string>
+    <string name="app_optimized">Đã tối ưu</string>
+    <string name="app_not_optimized">Chưa tối ưu</string>
+    <string name="app_settings_desc">Cài đặt pin cho %1$s</string>
+    <string name="empty_no_apps">Không tìm thấy ứng dụng</string>
+    <string name="select_all">Chọn tất cả</string>
+    <string name="deselect_all">Bỏ chọn</string>
+
+    <!-- Kênh thông báo -->
+    <string name="channel_fcm_name">Dịch vụ giữ kết nối</string>
+    <string name="channel_fcm_desc">Duy trì socket FCM không bị đóng khi màn hình tắt</string>
+    <string name="notification_title">Xiaomi Notifixer</string>
+    <string name="notification_connecting">Đang kết nối tới máy chủ thông báo…</string>
+    <string name="notification_stop">Tắt</string>
+    <string name="notification_ping_ok">Ping %1$d ms • chu kỳ %2$d phút</string>
 </resources>

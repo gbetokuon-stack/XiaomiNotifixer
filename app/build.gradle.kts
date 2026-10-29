@@ -11,8 +11,8 @@ android {
         applicationId = "com.xiaomifix.notification"
         minSdk = 26
         targetSdk = 35
-        versionCode = 503
-        versionName = "5.0.3"
+        versionCode = 510
+        versionName = "5.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

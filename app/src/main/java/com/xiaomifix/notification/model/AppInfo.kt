@@ -7,6 +7,6 @@ data class AppInfo(
     val packageName: String,
     val icon: Drawable?,
     var isSelected: Boolean = false,
-    var isOptimized: Boolean = true,
+    var isOptimized: Boolean = false,
     var isWhitelisted: Boolean = false
 )

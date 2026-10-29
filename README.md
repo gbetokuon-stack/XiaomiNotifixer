@@ -4,15 +4,16 @@ Giải pháp toàn diện khắc phục triệt để vấn đề **chậm, tr�
 
 > 💡 **Tương thích 100% với ứng dụng Ngân hàng, Ví điện tử và VNeID.** Không cần Root, không cần bật chế độ Nhà phát triển (Developer Options).
 
-### 🆕 Có gì mới ở phiên bản 5.0.3
-- **Tự động tối ưu chính App Fix & Hệ thống (`Auto Self-Boost`)**: Ngay khi Shizuku kết nối, app tự động whitelist chính nó và `Google Play Services` trong Doze, cấp quyền `AUTO_START` + `10008`, tắt Phantom Process Killer (`max_phantom_processes 2147483647`), rút ngắn chu kỳ FCM về 120s — **không còn phải gạt tay thủ công cho app Fix**.
-- **Tối ưu tốc độ thực thi lệnh Shizuku gấp 10 lần (`Batch Command Pipeline`)**: Gom toàn bộ lệnh qua 1 tiến trình shell duy nhất, khắc phục hiện tượng delay/treo IPC khi xử lý danh sách nhiều app.
-- **Bổ sung nút Chọn Tất Cả / Bỏ Chọn**: Tiết kiệm thao tác, hỗ trợ tích chọn 1 chạm cho toàn bộ ứng dụng.
-- **Mở rộng danh sách nhận diện app tự động**: Bổ sung sẵn 30+ app OTT, mạng xã hội, mua sắm và ngân hàng phổ biến (Facebook, Instagram, Locket, TikTok, Shopee, Grab, MoMo, Vietcombank, Techcombank, MB Bank, v.v.).
-- **Trạng thái trực quan HUD**: Hiển thị nhãn `✓ ĐÃ CẤP` màu xanh neon ngay trên giao diện chính khi đã hoàn thành các quyền hệ thống. Tapping vào thẻ Shizuku cho phép kích hoạt / kiểm tra quyền tức thì.
-- **Tối ưu kiểm tra mạng FCM Pinger**: Tránh đánh thức socket không cần thiết khi thiết bị ở chế độ máy bay hoặc mất mạng.
+### 🆕 Có gì mới ở phiên bản 5.1.0
+- **Giao diện tối giản hoàn toàn mới**: bảng màu tối dịu mắt, điểm nhấn xanh lá, bố cục gọn hơn, bỏ hiệu ứng neon rườm rà.
+- **Trạng thái dịch vụ được lưu bền**: công tắc phản ánh đúng dịch vụ đang chạy, tự khôi phục sau khi khởi động lại máy và chỉ chạy khi người dùng đã bật.
+- **Thông báo dịch vụ trực quan hơn**: cập nhật trạng thái ping theo thời gian thực, có nút **Tắt** ngay trên thông báo.
+- **Luồng cấp quyền thông báo rõ ràng**: nếu từ chối quyền, công tắc tự tắt và mở hướng dẫn bật lại trong cài đặt.
+- **Tự khởi động lại dịch vụ khi mở app** nếu HyperOS đã dọn tiến trình trước đó.
+- **Tối ưu Shizuku hàng loạt an toàn hơn**: chia lệnh thành nhiều lô, tránh lỗi quá dài lệnh khi chọn hàng trăm ứng dụng.
+- **Danh sách ứng dụng mới**: tìm kiếm, chọn tất cả/bỏ chọn, hiển thị `Đã tối ưu` / `Chưa tối ưu`, mở nhanh cài đặt pin của từng app.
+- **Sửa xung đột callback Shizuku** giữa màn hình chính và màn hình danh sách ứng dụng.
 
----
 ---
 
 ## 📥 Tải Nhanh File Cài Đặt (APK)
@@ -35,14 +36,16 @@ Dành cho người dùng dùng điện thoại trực tiếp (tương thích app
 
 ### Bước 2: Thiết lập trong ứng dụng Xiaomi Notification Fixer
 1. Mở ứng dụng **Xiaomi Notification Fixer**.
-2. Bật công tắc **FCM Keep-Alive Service** ở trên cùng:
+2. Bật công tắc **Giữ kết nối thông báo** ở trên cùng:
    * Chọn **Cho phép** khi hệ thống hỏi quyền gửi thông báo.
-3. Bấm nút **Truy Cập Thông Báo (Notification Access)**:
+3. Chạm vào **Quyền đọc thông báo**:
    * Tìm dòng **Xiaomi Notification Fixer** -> Gạt bật công tắc cho phép. *(Đặc quyền này giúp app không bị HyperOS dọn RAM).*
-4. Bấm nút **Tiết Kiệm Pin (Battery Saver)**:
+4. Chạm vào **Tiết kiệm pin**:
    * Chọn mục **Không hạn chế (No restrictions)**.
-5. Bấm nút **Bỏ Tối Ưu Pin (Doze Whitelist)**:
+5. Chạm vào **Miễn trừ Doze**:
    * Nhấn **Cho phép (Allow)** để đưa app vào danh sách không bị Doze đóng băng.
+6. Chạm vào **Tự khởi chạy** và bật cho ứng dụng.
+7. *(Tùy chọn)* Cài **Shizuku**, cấp quyền rồi mở **Chọn ứng dụng** để tối ưu hàng loạt app nhắn tin/ngân hàng.
 
 ---
 

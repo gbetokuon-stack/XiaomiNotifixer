@@ -2,6 +2,9 @@ package com.xiaomifix.notification.util
 
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import com.xiaomifix.notification.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.net.InetSocketAddress
@@ -12,14 +15,19 @@ object FcmPinger {
     private const val FCM_PORT_PRIMARY = 5228
     private const val FCM_PORT_FALLBACK = 443
     private const val TIMEOUT_MS = 2500
+    private const val RECONNECT_THROTTLE_MS = 30 * 60 * 1000L
+
+    private var lastReconnectAt = 0L
 
     data class PingResult(val success: Boolean, val latencyMs: Long, val message: String)
 
     suspend fun pingFcmServer(context: Context): PingResult = withContext(Dispatchers.IO) {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
-        val activeNetwork = cm?.activeNetworkInfo
-        if (activeNetwork == null || !activeNetwork.isConnected) {
-            return@withContext PingResult(false, 0, "Không có kết nối mạng")
+        if (!hasInternet(context)) {
+            return@withContext PingResult(
+                false,
+                0,
+                context.getString(R.string.ping_no_network)
+            )
         }
 
         val start = System.currentTimeMillis()
@@ -35,26 +43,47 @@ object FcmPinger {
             }
             val latency = System.currentTimeMillis() - start
 
-            // KHI KẾT NỐI THÀNH CÔNG: KHÔNG broadcast GCM_RECONNECT để tránh ép Google Play Services
-            // bắt tay TLS lại gây hao pin nghiêm trọng.
-            PingResult(true, latency, "FCM Socket OK (${latency}ms)")
+            // Kết nối thành công: không gửi GCM_RECONNECT để tránh bắt tay TLS lặp lại.
+            PingResult(true, latency, context.getString(R.string.ping_ok, latency))
         } catch (e: Exception) {
-            val latency = System.currentTimeMillis() - start
-
-            // CHỈ KHI KẾT NỐI THẤT BẠI: Mới kích hoạt GCM_RECONNECT để khôi phục socket
-            try {
-                val gcmIntent = Intent("com.google.android.intent.action.GCM_RECONNECT").apply {
-                    setPackage("com.google.android.gms")
+            // Chỉ khi kết nối thất bại mới kích hoạt cơ chế phục hồi socket của GMS.
+            // Giới hạn tần suất để không ép GMS bắt tay TLS liên tục trên mạng
+            // chặn cổng FCM.
+            val now = System.currentTimeMillis()
+            if (now - lastReconnectAt >= RECONNECT_THROTTLE_MS) {
+                lastReconnectAt = now
+                try {
+                    context.sendBroadcast(
+                        Intent("com.google.android.intent.action.GCM_RECONNECT").apply {
+                            setPackage("com.google.android.gms")
+                        }
+                    )
+                } catch (_: Exception) {
                 }
-                context.sendBroadcast(gcmIntent)
-            } catch (_: Exception) {}
+            }
 
-            PingResult(false, latency, "Lỗi ping FCM: ${e.message}")
+            PingResult(
+                false,
+                System.currentTimeMillis() - start,
+                context.getString(R.string.ping_lost)
+            )
         } finally {
             try {
                 socket?.close()
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    private fun hasInternet(context: Context): Boolean {
+        return try {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+                ?: return false
+            val network = cm.activeNetwork ?: return false
+            val capabilities = cm.getNetworkCapabilities(network) ?: return false
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } catch (_: Exception) {
+            false
         }
     }
 }
-
