@@ -16,8 +16,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="20dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="24dp">
+        android:paddingTop="12dp"
+        android:paddingBottom="28dp">
 
         <LinearLayout
             android:id="@+id/contentWrapper"
@@ -28,25 +28,24 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_max="560dp">
+            app:layout_constraintWidth_max="540dp">
 
-            <!-- Header -->
+            <!-- App Bar / Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:baselineAligned="false"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingTop="8dp">
+                android:paddingVertical="4dp">
 
                 <FrameLayout
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
                     android:background="@drawable/bg_icon_tile_accent">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_notification"
@@ -65,30 +64,30 @@
                         android:layout_height="wrap_content"
                         android:text="@string/title_hyperos_fix"
                         android:textColor="@color/text_primary"
-                        android:textSize="19sp"
+                        android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvDeviceModel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="1dp"
                         android:ellipsize="end"
                         android:maxLines="1"
                         android:textColor="@color/text_tertiary"
                         android:textSize="11sp"
-                        tools:text="XIAOMI 15 ULTRA (Android 15, API 35)" />
+                        tools:text="XIAOMI 15 ULTRA • HYPEROS 2" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Service card -->
+            <!-- Main Control Card (Hero) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/bg_card_elevated"
                 android:orientation="vertical"
-                android:padding="18dp">
+                android:padding="16dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -111,10 +110,13 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvPingStats"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="3dp"
-                            android:text="@string/fcm_heartbeat_desc"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="@string/status_no_data"
                             android:textColor="@color/text_tertiary"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -125,10 +127,11 @@
                         android:layout_height="wrap_content" />
                 </LinearLayout>
 
+                <!-- Status Pill & Quick Instant Wake in 1 clean row -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
+                    android:layout_marginTop="12dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -139,54 +142,53 @@
                         android:background="@drawable/bg_pill"
                         android:backgroundTint="@color/pill_off_bg"
                         android:paddingHorizontal="10dp"
-                        android:paddingVertical="5dp"
+                        android:paddingVertical="4dp"
                         android:text="@string/status_off"
                         android:textColor="@color/text_tertiary"
                         android:textSize="11sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tvPingStats"
+                    <View
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
-                        android:layout_weight="1"
-                        android:ellipsize="end"
-                        android:maxLines="2"
-                        android:text="@string/status_no_data"
-                        android:textColor="@color/text_tertiary"
-                        android:textSize="11sp" />
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnForceWake"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:backgroundTint="@color/surface_muted"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="0dp"
+                        android:text="⚡ Kích hoạt ngay"
+                        android:textColor="@color/accent"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="16dp"
+                        app:strokeColor="@color/divider"
+                        app:strokeWidth="1dp" />
                 </LinearLayout>
 
-                <!-- Instant Wake Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnForceWake"
-                    style="@style/Widget.Material3.Button.TonalButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="42dp"
-                    android:layout_marginTop="12dp"
-                    android:backgroundTint="@color/surface_muted"
-                    android:text="@string/btn_force_wake"
-                    android:textColor="@color/accent"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="10dp" />
-
-                <!-- Interval Selector -->
+                <!-- Segmented Interval Control -->
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:layout_height="34dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_pill"
+                    android:backgroundTint="@color/surface"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="2dp">
 
                     <TextView
                         android:id="@+id/btnInterval60s"
                         android:layout_width="0dp"
-                        android:layout_height="32dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:layout_marginEnd="4dp"
                         android:background="@drawable/bg_pill"
-                        android:backgroundTint="@color/surface_muted"
+                        android:backgroundTint="@color/surface"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center"
@@ -198,9 +200,8 @@
                     <TextView
                         android:id="@+id/btnInterval120s"
                         android:layout_width="0dp"
-                        android:layout_height="32dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:layout_marginHorizontal="2dp"
                         android:background="@drawable/bg_pill"
                         android:backgroundTint="@color/pill_good_bg"
                         android:clickable="true"
@@ -214,11 +215,10 @@
                     <TextView
                         android:id="@+id/btnInterval180s"
                         android:layout_width="0dp"
-                        android:layout_height="32dp"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
-                        android:layout_marginStart="4dp"
                         android:background="@drawable/bg_pill"
-                        android:backgroundTint="@color/surface_muted"
+                        android:backgroundTint="@color/surface"
                         android:clickable="true"
                         android:focusable="true"
                         android:gravity="center"
@@ -229,11 +229,11 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Permissions -->
+            <!-- Section 1: System Settings -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -241,7 +241,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:letterSpacing="0.08"
+                    android:letterSpacing="0.06"
                     android:text="@string/section_miui_settings"
                     android:textAllCaps="true"
                     android:textColor="@color/text_secondary"
@@ -257,73 +257,42 @@
                     android:textSize="11sp" />
             </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/permission_intro"
-                android:textColor="@color/text_tertiary"
-                android:textSize="12sp" />
-
+            <!-- Permissions Card (Slim list) -->
             <LinearLayout
                 android:id="@+id/permissionCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/bg_card"
                 android:orientation="vertical">
 
-                <!-- Notification permission -->
+                <!-- 1. Notification Permission -->
                 <LinearLayout
                     android:id="@+id/btnNotificationPermission"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="64dp"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="12dp">
+                    android:paddingHorizontal="14dp">
 
-                    <FrameLayout
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:background="@drawable/bg_icon_tile">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_notification"
+                        app:tint="@color/text_secondary" />
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_notification"
-                            app:tint="@color/text_secondary" />
-                    </FrameLayout>
-
-                    <LinearLayout
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/btn_notification_permission"
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/desc_notification_permission"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                        android:text="@string/btn_notification_permission"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/tvNotificationPermissionStatus"
@@ -335,9 +304,9 @@
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="2dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="4dp"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_tertiary" />
@@ -346,60 +315,36 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginStart="60dp"
+                    android:layout_marginStart="44dp"
                     android:background="@color/divider" />
 
-                <!-- Autostart -->
+                <!-- 2. Autostart -->
                 <LinearLayout
                     android:id="@+id/btnAutostart"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="64dp"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="12dp">
+                    android:paddingHorizontal="14dp">
 
-                    <FrameLayout
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:background="@drawable/bg_icon_tile">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_power"
+                        app:tint="@color/text_secondary" />
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_power"
-                            app:tint="@color/text_secondary" />
-                    </FrameLayout>
-
-                    <LinearLayout
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/btn_autostart"
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/desc_autostart"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                        android:text="@string/btn_autostart"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/tvAutostartStatus"
@@ -411,9 +356,9 @@
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="2dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="4dp"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_tertiary" />
@@ -422,60 +367,36 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginStart="60dp"
+                    android:layout_marginStart="44dp"
                     android:background="@color/divider" />
 
-                <!-- Battery saver -->
+                <!-- 3. Battery Saver -->
                 <LinearLayout
                     android:id="@+id/btnBatterySaver"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="64dp"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="12dp">
+                    android:paddingHorizontal="14dp">
 
-                    <FrameLayout
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:background="@drawable/bg_icon_tile">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_battery"
+                        app:tint="@color/text_secondary" />
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_battery"
-                            app:tint="@color/text_secondary" />
-                    </FrameLayout>
-
-                    <LinearLayout
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/btn_battery_saver"
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/desc_battery_saver"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                        android:text="@string/btn_battery_saver"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/tvBatterySaverStatus"
@@ -487,9 +408,9 @@
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="2dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="4dp"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_tertiary" />
@@ -498,60 +419,36 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginStart="60dp"
+                    android:layout_marginStart="44dp"
                     android:background="@color/divider" />
 
-                <!-- Doze -->
+                <!-- 4. Battery Optimization (Doze) -->
                 <LinearLayout
                     android:id="@+id/btnBatteryOpt"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="64dp"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="12dp">
+                    android:paddingHorizontal="14dp">
 
-                    <FrameLayout
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:background="@drawable/bg_icon_tile">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_moon"
+                        app:tint="@color/text_secondary" />
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_moon"
-                            app:tint="@color/text_secondary" />
-                    </FrameLayout>
-
-                    <LinearLayout
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/btn_battery_optimization"
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/desc_battery_optimization"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                        android:text="@string/btn_battery_optimization"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/tvBatteryOptStatus"
@@ -563,9 +460,9 @@
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="2dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="4dp"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_tertiary" />
@@ -574,60 +471,36 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginStart="60dp"
+                    android:layout_marginStart="44dp"
                     android:background="@color/divider" />
 
-                <!-- Notification listener -->
+                <!-- 5. Notification Listener -->
                 <LinearLayout
                     android:id="@+id/btnNotificationListener"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="50dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="64dp"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="12dp">
+                    android:paddingHorizontal="14dp">
 
-                    <FrameLayout
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:background="@drawable/bg_icon_tile">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_shield"
+                        app:tint="@color/text_secondary" />
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_shield"
-                            app:tint="@color/text_secondary" />
-                    </FrameLayout>
-
-                    <LinearLayout
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/btn_notification_listener"
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/desc_notification_listener"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                        android:text="@string/btn_notification_listener"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp" />
 
                     <TextView
                         android:id="@+id/tvNotificationListenerStatus"
@@ -639,21 +512,21 @@
                         android:textStyle="bold" />
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_marginStart="2dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="4dp"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_tertiary" />
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Shizuku -->
+            <!-- Section 2: Automation (Shizuku & Batch Apps) -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:letterSpacing="0.08"
+                android:layout_marginTop="20dp"
+                android:letterSpacing="0.06"
                 android:text="@string/section_shizuku"
                 android:textAllCaps="true"
                 android:textColor="@color/text_secondary"
@@ -661,59 +534,41 @@
                 android:textStyle="bold" />
 
             <LinearLayout
-                android:id="@+id/layoutShizukuPanel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_card"
-                android:clickable="true"
-                android:focusable="true"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="14dp">
 
+                <!-- Shizuku Header Line -->
                 <LinearLayout
+                    android:id="@+id/layoutShizukuPanel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:paddingVertical="4dp">
 
-                    <FrameLayout
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
-                        android:background="@drawable/bg_icon_tile">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_bolt"
+                        app:tint="@color/accent" />
 
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_bolt"
-                            app:tint="@color/accent" />
-                    </FrameLayout>
-
-                    <LinearLayout
+                    <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
+                        android:layout_marginStart="10dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/shizuku_title"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/shizuku_short_desc"
-                            android:textColor="@color/text_tertiary"
-                            android:textSize="11sp" />
-                    </LinearLayout>
+                        android:text="@string/shizuku_title"
+                        android:textColor="@color/text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tvShizukuStatus"
@@ -721,47 +576,39 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_pill"
                         android:backgroundTint="@color/pill_off_bg"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="5dp"
+                        android:paddingHorizontal="9dp"
+                        android:paddingVertical="3dp"
                         android:text="@string/status_shizuku_offline"
                         android:textColor="@color/text_tertiary"
-                        android:textSize="11sp"
+                        android:textSize="10sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:lineSpacingExtra="2dp"
-                    android:text="@string/shizuku_desc"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp" />
-
+                <!-- App List Action Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAppList"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="10dp"
                     android:backgroundTint="@color/accent"
                     android:text="@string/btn_manage_apps"
                     android:textAllCaps="false"
                     android:textColor="@color/bg_app"
-                    android:textSize="13sp"
+                    android:textSize="12sp"
                     android:textStyle="bold"
-                    app:cornerRadius="12dp"
+                    app:cornerRadius="10dp"
                     app:icon="@drawable/ic_apps"
                     app:iconGravity="textStart"
+                    app:iconSize="16dp"
                     app:iconTint="@color/bg_app" />
             </LinearLayout>
 
+            <!-- Footer -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="8dp"
                 android:gravity="center"
-                android:lineSpacingExtra="3dp"
                 android:text="@string/footer_safety"
                 android:textColor="@color/text_tertiary"
                 android:textSize="11sp" />
