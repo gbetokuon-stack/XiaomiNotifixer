@@ -15,11 +15,31 @@ object FcmPinger {
     private const val FCM_PORT_PRIMARY = 5228
     private const val FCM_PORT_FALLBACK = 443
     private const val TIMEOUT_MS = 2500
-    private const val RECONNECT_THROTTLE_MS = 30 * 60 * 1000L
 
-    private var lastReconnectAt = 0L
+    // Bộ Intent chuẩn kích hoạt Google Play Services (GMS) xả thông báo FCM bị nghẽn
+    private val FCM_WAKE_INTENTS = listOf(
+        "com.google.android.intent.action.GCM_RECONNECT",
+        "com.google.android.intent.action.GTALK_HEARTBEAT",
+        "com.google.android.intent.action.MCS_HEARTBEAT"
+    )
 
     data class PingResult(val success: Boolean, val latencyMs: Long, val message: String)
+
+    /**
+     * Phát broadcast đánh thức Google Play Services để xả toàn bộ thông báo đang nghẽn.
+     */
+    fun triggerFcmWakeBroadcasts(context: Context) {
+        for (action in FCM_WAKE_INTENTS) {
+            try {
+                context.sendBroadcast(
+                    Intent(action).apply {
+                        setPackage("com.google.android.gms")
+                        addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+                    }
+                )
+            } catch (_: Exception) {}
+        }
+    }
 
     suspend fun pingFcmServer(context: Context): PingResult = withContext(Dispatchers.IO) {
         if (!hasInternet(context)) {
@@ -32,6 +52,9 @@ object FcmPinger {
 
         val start = System.currentTimeMillis()
         var socket: Socket? = null
+        var isSuccess = false
+        var latency = 0L
+
         try {
             socket = Socket()
             try {
@@ -41,37 +64,24 @@ object FcmPinger {
                 socket = Socket()
                 socket.connect(InetSocketAddress(FCM_HOST, FCM_PORT_FALLBACK), TIMEOUT_MS)
             }
-            val latency = System.currentTimeMillis() - start
-
-            // Kết nối thành công: không gửi GCM_RECONNECT để tránh bắt tay TLS lặp lại.
-            PingResult(true, latency, context.getString(R.string.ping_ok, latency))
-        } catch (e: Exception) {
-            // Chỉ khi kết nối thất bại mới kích hoạt cơ chế phục hồi socket của GMS.
-            // Giới hạn tần suất để không ép GMS bắt tay TLS liên tục trên mạng
-            // chặn cổng FCM.
-            val now = System.currentTimeMillis()
-            if (now - lastReconnectAt >= RECONNECT_THROTTLE_MS) {
-                lastReconnectAt = now
-                try {
-                    context.sendBroadcast(
-                        Intent("com.google.android.intent.action.GCM_RECONNECT").apply {
-                            setPackage("com.google.android.gms")
-                        }
-                    )
-                } catch (_: Exception) {
-                }
-            }
-
-            PingResult(
-                false,
-                System.currentTimeMillis() - start,
-                context.getString(R.string.ping_lost)
-            )
+            latency = System.currentTimeMillis() - start
+            isSuccess = true
+        } catch (_: Exception) {
+            latency = System.currentTimeMillis() - start
         } finally {
             try {
                 socket?.close()
-            } catch (_: Exception) {
-            }
+            } catch (_: Exception) {}
+        }
+
+        // BẮT BUỘC: Luôn phát sóng đánh thức GMS ở mỗi chu kỳ để duy trì socket push
+        // và giải phóng tức thì mọi thông báo đang chờ tại máy chủ Google!
+        triggerFcmWakeBroadcasts(context)
+
+        if (isSuccess) {
+            PingResult(true, latency, context.getString(R.string.ping_ok, latency))
+        } else {
+            PingResult(false, latency, context.getString(R.string.ping_lost))
         }
     }
 

@@ -147,8 +147,75 @@ class MainActivity : AppCompatActivity() {
             MiuiHelper.openNotificationListenerSettings(this)
         }
 
+        b.btnForceWake.setOnClickListener {
+            b.tvPingStats.text = getString(R.string.msg_force_wake_waking)
+            lifecycleScope.launch {
+                val result = com.xiaomifix.notification.util.FcmPinger.pingFcmServer(applicationContext)
+                b.tvPingStats.text = result.message
+                updatePingPill(result.success)
+                if (result.success) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        getString(R.string.msg_force_wake_success, result.latencyMs),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(this@MainActivity, result.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        setupIntervalSelectors()
+
         b.permissionCard.clipToOutline = true
         b.layoutShizukuPanel.setOnClickListener { handleShizukuClick() }
+    }
+
+    private fun setupIntervalSelectors() {
+        val current = FcmHeartbeatService.getIntervalMs(this)
+        renderIntervalUi(current)
+
+        b.btnInterval60s.setOnClickListener {
+            changeInterval(FcmHeartbeatService.FAST_INTERVAL_MS, getString(R.string.interval_fast))
+        }
+        b.btnInterval120s.setOnClickListener {
+            changeInterval(FcmHeartbeatService.DEFAULT_INTERVAL_MS, getString(R.string.interval_default))
+        }
+        b.btnInterval180s.setOnClickListener {
+            changeInterval(FcmHeartbeatService.BALANCED_INTERVAL_MS, getString(R.string.interval_balanced))
+        }
+    }
+
+    private fun changeInterval(ms: Long, name: String) {
+        FcmHeartbeatService.setIntervalMs(this, ms)
+        renderIntervalUi(ms)
+        Toast.makeText(this, getString(R.string.msg_interval_changed, name), Toast.LENGTH_SHORT).show()
+        if (FcmHeartbeatService.isServiceRunning(this)) {
+            val i = Intent(this, FcmHeartbeatService::class.java).apply {
+                action = FcmHeartbeatService.ACTION_TRIGGER_PULSE
+            }
+            startService(i)
+        }
+    }
+
+    private fun renderIntervalUi(selectedMs: Long) {
+        val is60 = selectedMs == FcmHeartbeatService.FAST_INTERVAL_MS
+        val is120 = selectedMs == FcmHeartbeatService.DEFAULT_INTERVAL_MS
+        val is180 = selectedMs == FcmHeartbeatService.BALANCED_INTERVAL_MS
+
+        val selectedBg = ContextCompat.getColor(this, R.color.pill_good_bg)
+        val defaultBg = ContextCompat.getColor(this, R.color.surface_muted)
+        val selectedText = ContextCompat.getColor(this, R.color.accent)
+        val defaultText = ContextCompat.getColor(this, R.color.text_secondary)
+
+        b.btnInterval60s.backgroundTintList = ColorStateList.valueOf(if (is60) selectedBg else defaultBg)
+        b.btnInterval60s.setTextColor(if (is60) selectedText else defaultText)
+
+        b.btnInterval120s.backgroundTintList = ColorStateList.valueOf(if (is120) selectedBg else defaultBg)
+        b.btnInterval120s.setTextColor(if (is120) selectedText else defaultText)
+
+        b.btnInterval180s.backgroundTintList = ColorStateList.valueOf(if (is180) selectedBg else defaultBg)
+        b.btnInterval180s.setTextColor(if (is180) selectedText else defaultText)
     }
 
     private fun checkAndStart() {

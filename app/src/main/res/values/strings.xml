@@ -48,6 +48,13 @@
     <string name="ping_no_network">Không có mạng • đang chờ kết nối</string>
     <string name="ping_ok">FCM ổn định (%1$dms)</string>
     <string name="ping_lost">Mất kết nối FCM • sẽ thử lại</string>
+    <string name="btn_force_wake">⚡ Kích hoạt nổ thông báo ngay</string>
+    <string name="msg_force_wake_success">⚡ Đã phát xung FCM &amp; đánh thức GMS! (%1$dms)</string>
+    <string name="msg_force_wake_waking">Đang phát xung đánh thức FCM &amp; GMS…</string>
+    <string name="interval_fast">1 phút</string>
+    <string name="interval_default">2 phút (chuẩn)</string>
+    <string name="interval_balanced">3 phút</string>
+    <string name="msg_interval_changed">Đã đổi chu kỳ FCM sang %1$s</string>
 
     <!-- Thông báo dịch vụ -->
     <string name="msg_service_started">Đã bật dịch vụ giữ kết nối thông báo</string>

@@ -138,6 +138,11 @@ object ShizukuHelper {
             "cmd appops set com.google.android.gms AUTO_START allow",
             "cmd appops set com.google.android.gms 10008 allow",
             "cmd appops set com.google.android.gms RUN_IN_BACKGROUND allow",
+            "cmd appops set com.google.android.gms RUN_ANY_IN_BACKGROUND allow",
+            "cmd appops set com.google.android.gms WAKE_LOCK allow",
+            "cmd appops set com.google.android.gms START_FOREGROUND allow",
+            "cmd appops set com.google.android.gms POST_NOTIFICATION allow",
+            "cmd appops set com.google.android.gms SCHEDULE_EXACT_ALARM allow",
             // Vô hiệu hóa Phantom Process Killer trên Android 12-15
             "/system/bin/device_config put activity_manager max_phantom_processes 2147483647",
             // Rút ngắn chu kỳ heartbeat của GMS xuống 120s

@@ -4,6 +4,13 @@ Giải pháp toàn diện khắc phục triệt để vấn đề **chậm, tr�
 
 > 💡 **Tương thích 100% với ứng dụng Ngân hàng, Ví điện tử và VNeID.** Không cần Root, không cần bật chế độ Nhà phát triển (Developer Options).
 
+### 🆕 Có gì mới ở phiên bản 5.1.1 (Khắc phục triệt để lỗi chậm / không nổ thông báo)
+- **Khôi phục phát sóng đánh thức FCM & GMS định kỳ**: Luôn phát bộ 3 intent `GCM_RECONNECT`, `GTALK_HEARTBEAT` và `MCS_HEARTBEAT` tới Google Play Services (`com.google.android.gms`) mỗi chu kỳ, loại bỏ hoàn toàn cơ chế throttle 30 phút gây trễ/mất thông báo.
+- **Bảo vệ kép chống ngủ đông Doze Mode (Safe WakeLock & AlarmManager)**: Khôi phục WakeLock 2 giây và tích hợp `AlarmManager.setExactAndAllowWhileIdle()` đảm bảo CPU thức dậy đúng chu kỳ ngay cả khi màn hình tắt trên HyperOS / Android 15.
+- **Bổ sung nút "⚡ Kích hoạt nổ thông báo ngay"**: Bấm 1 chạm ngay trên màn hình chính để phát xung kích hoạt FCM và xả tức thì mọi thông báo đang chờ.
+- **Tùy chọn chu kỳ linh hoạt**: Hỗ trợ 3 mốc chu kỳ: `1 Phút` (Siêu tốc - Max nổ), `2 Phút` (Chuẩn HyperOS khuyên dùng) và `3 Phút` (Cân bằng).
+- **Mở rộng đặc quyền Shizuku cho GMS**: Tự động cấp thêm quyền `RUN_ANY_IN_BACKGROUND`, `WAKE_LOCK`, `START_FOREGROUND`, `POST_NOTIFICATION`, `SCHEDULE_EXACT_ALARM` cho Google Play Services.
+
 ### 🆕 Có gì mới ở phiên bản 5.1.0
 - **Giao diện tối giản hoàn toàn mới**: bảng màu tối dịu mắt, điểm nhấn xanh lá, bố cục gọn hơn, bỏ hiệu ứng neon rườm rà.
 - **Trạng thái dịch vụ được lưu bền**: công tắc phản ánh đúng dịch vụ đang chạy, tự khôi phục sau khi khởi động lại máy và chỉ chạy khi người dùng đã bật.
