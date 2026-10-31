@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
@@ -66,7 +67,13 @@
             </intent-filter>
         </service>
 
-        <!-- Boot Receiver -->
+        <!-- Alarm Broadcast Receiver for Keep-Alive Pulses in Doze -->
+        <receiver
+            android:name=".service.HeartbeatAlarmReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- Boot & App Update Receiver -->
         <receiver
             android:name=".service.BootReceiver"
             android:enabled="true"
@@ -75,6 +82,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 
@@ -90,4 +98,3 @@
     </application>
 
 </manifest>
-

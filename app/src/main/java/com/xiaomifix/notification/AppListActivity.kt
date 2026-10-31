@@ -48,11 +48,15 @@ class AppListActivity : AppCompatActivity() {
 
     private val shizukuPermissionListener = Shizuku.OnRequestPermissionResultListener { requestCode, result ->
         if (requestCode == SHIZUKU_REQUEST_CODE) {
-            if (result == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, R.string.msg_shizuku_granted, Toast.LENGTH_SHORT).show()
-                applyBatchFix()
-            } else {
-                Toast.makeText(this, R.string.msg_shizuku_denied, Toast.LENGTH_SHORT).show()
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    if (result == PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(this, R.string.msg_shizuku_granted, Toast.LENGTH_SHORT).show()
+                        applyBatchFix()
+                    } else {
+                        Toast.makeText(this, R.string.msg_shizuku_denied, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
@@ -74,6 +78,8 @@ class AppListActivity : AppCompatActivity() {
         "com.mservice.momotransfer", "vn.com.vng.zalopay", "com.VCB",
         "com.vnpay.bidv", "vn.com.techcombank.bb.app", "com.techcombank.mobile",
         "com.mbmobile", "com.tpb.mb.gprsandroid", "com.vietinbank.ipay",
+        // Tiền ảo & Giao dịch
+        "com.binance.dev", "com.bybit.app", "com.okinc.okex.gp", "com.wallet.crypto.trustapp",
         // AI / Tiện ích
         "com.openai.chatgpt", "com.deepseek.chat"
     )
@@ -126,7 +132,7 @@ class AppListActivity : AppCompatActivity() {
         b.btnSelectAll.setOnClickListener {
             if (displayedList.isNotEmpty()) {
                 displayedList.forEach { it.isSelected = true }
-                adapter.notifyItemRangeChanged(0, displayedList.size)
+                adapter.notifyDataSetChanged()
             }
             updateSelectionUi()
         }
@@ -134,7 +140,7 @@ class AppListActivity : AppCompatActivity() {
         b.btnDeselectAll.setOnClickListener {
             if (displayedList.isNotEmpty()) {
                 displayedList.forEach { it.isSelected = false }
-                adapter.notifyItemRangeChanged(0, displayedList.size)
+                adapter.notifyDataSetChanged()
             }
             updateSelectionUi()
         }
@@ -143,8 +149,7 @@ class AppListActivity : AppCompatActivity() {
 
         try {
             Shizuku.addRequestPermissionResultListener(shizukuPermissionListener)
-        } catch (_: Throwable) {
-        }
+        } catch (_: Throwable) {}
 
         updateSelectionUi()
         loadApps()
@@ -152,10 +157,6 @@ class AppListActivity : AppCompatActivity() {
 
     private fun filterApps(query: String) {
         val q = query.trim().lowercase(Locale.getDefault())
-        val oldSize = displayedList.size
-        if (oldSize > 0) {
-            adapter.notifyItemRangeRemoved(0, oldSize)
-        }
         displayedList.clear()
         displayedList.addAll(
             if (q.isBlank()) {
@@ -167,9 +168,7 @@ class AppListActivity : AppCompatActivity() {
                 }
             }
         )
-        if (displayedList.isNotEmpty()) {
-            adapter.notifyItemRangeInserted(0, displayedList.size)
-        }
+        adapter.notifyDataSetChanged()
         b.rvApps.scrollToPosition(0)
         updateEmptyState()
     }
@@ -261,8 +260,7 @@ class AppListActivity : AppCompatActivity() {
                     )
                 }
             }
-        } catch (_: Exception) {
-        }
+        } catch (_: Exception) {}
 
         list.sortWith(
             compareByDescending<AppInfo> { commonPkgs.contains(it.packageName) }
@@ -291,15 +289,12 @@ class AppListActivity : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 val packages = selected.map { it.packageName }
-                val count = ShizukuHelper.optimizeApps(packages)
+                val count = ShizukuHelper.optimizeApps(packages, applicationContext)
                 if (count > 0) {
-                    ShizukuHelper.optimizeSelfAndSystem(applicationContext)
                     optimizedPkgs.addAll(packages)
                     prefs.edit().putStringSet(KEY_OPTIMIZED_APPS, optimizedPkgs.toSet()).apply()
                     selected.forEach { it.isOptimized = true }
-                    if (displayedList.isNotEmpty()) {
-                        adapter.notifyItemRangeChanged(0, displayedList.size)
-                    }
+                    adapter.notifyDataSetChanged()
                     Toast.makeText(
                         this@AppListActivity,
                         getString(R.string.msg_batch_done, count),
@@ -375,8 +370,7 @@ class AppListActivity : AppCompatActivity() {
     override fun onDestroy() {
         try {
             Shizuku.removeRequestPermissionResultListener(shizukuPermissionListener)
-        } catch (_: Throwable) {
-        }
+        } catch (_: Throwable) {}
         super.onDestroy()
     }
 

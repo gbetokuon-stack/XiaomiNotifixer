@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import com.xiaomifix.notification.util.MiuiHelper
 
 class NotificationKeepAliveListener : NotificationListenerService() {
 
@@ -15,13 +16,16 @@ class NotificationKeepAliveListener : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        // Android thường tự rebind, nhưng chủ động yêu cầu lại giúp listener
-        // không bị mất sau khi HyperOS dọn tiến trình.
+        // Chỉ yêu cầu kết nối lại nếu người dùng vẫn đang cấp quyền này trong hệ thống.
+        if (!MiuiHelper.isNotificationListenerEnabled(this)) return
+
         Handler(Looper.getMainLooper()).postDelayed({
             try {
-                requestRebind(
-                    ComponentName(this, NotificationKeepAliveListener::class.java)
-                )
+                if (MiuiHelper.isNotificationListenerEnabled(this)) {
+                    requestRebind(
+                        ComponentName(this, NotificationKeepAliveListener::class.java)
+                    )
+                }
             } catch (_: Exception) {
             }
         }, REBIND_DELAY_MS)

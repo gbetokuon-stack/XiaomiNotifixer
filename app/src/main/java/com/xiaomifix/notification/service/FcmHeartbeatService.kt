@@ -24,14 +24,16 @@ import com.xiaomifix.notification.util.FcmPinger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class FcmHeartbeatService : Service() {
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Default + serviceJob)
+    private val pulseMutex = Mutex()
+
     private var powerManager: PowerManager? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var alarmManager: AlarmManager? = null
@@ -45,18 +47,21 @@ class FcmHeartbeatService : Service() {
 
         const val CHANNEL_ID = "fcm_keep_alive_channel"
         const val NOTIFICATION_ID = 1001
+        const val ALARM_REQUEST_CODE = 1003
+
         const val ACTION_PING_UPDATE = "com.xiaomifix.notification.PING_UPDATE"
         const val ACTION_STATE_CHANGED = "com.xiaomifix.notification.SERVICE_STATE"
         const val ACTION_TRIGGER_PULSE = "com.xiaomifix.notification.TRIGGER_PULSE"
         const val ACTION_STOP = "com.xiaomifix.notification.action.STOP"
+
         const val EXTRA_STATUS = "extra_status"
         const val EXTRA_OK = "extra_ok"
         const val EXTRA_RUNNING = "extra_running"
 
-        // Chu kỳ tối ưu cho mạng Việt Nam (NAT timeout 180s - 240s):
+        // Chu kỳ tối ưu cho mạng di động & Wi-Fi:
         // Mặc định: 120s (2 phút) giữ kênh push FCM luôn thông suốt
         const val DEFAULT_INTERVAL_MS = 120_000L
-        const val FAST_INTERVAL_MS = 60_000L       // 1 phút (Max tốc độ nổ thông báo)
+        const val FAST_INTERVAL_MS = 60_000L       // 1 phút (Tốc độ nổ thông báo nhanh nhất)
         const val BALANCED_INTERVAL_MS = 180_000L  // 3 phút (Cân bằng tiết kiệm pin)
 
         @Volatile
@@ -108,6 +113,7 @@ class FcmHeartbeatService : Service() {
             stopSelf()
             return
         }
+
         isRunning = true
         powerManager = getSystemService(Context.POWER_SERVICE) as? PowerManager
         alarmManager = getSystemService(Context.ALARM_SERVICE) as? AlarmManager
@@ -128,8 +134,9 @@ class FcmHeartbeatService : Service() {
             stopSelf()
             return
         }
+
         sendStateUpdate(true)
-        startHeartbeatLoop()
+        triggerPulse()
     }
 
     private fun startServiceInForeground() {
@@ -148,21 +155,24 @@ class FcmHeartbeatService : Service() {
         }
     }
 
-    private fun startHeartbeatLoop() {
+    private fun triggerPulse() {
         serviceScope.launch {
-            while (isActive) {
-                performPulse()
+            pulseMutex.withLock {
+                if (!isEnabled(applicationContext)) {
+                    stopPulseService()
+                    return@withLock
+                }
+                performPulseInternal()
                 val interval = getIntervalMs(applicationContext)
                 scheduleNextAlarm(interval)
-                delay(interval)
             }
         }
     }
 
-    private suspend fun performPulse() {
-        // Tạm thời giữ WakeLock an toàn trong 2s để CPU không bị suspend giữa chừng khi tắt màn hình
+    private suspend fun performPulseInternal() {
+        // Tạm giữ WakeLock an toàn tối đa 10s để CPU không bị suspend giữa lúc ping qua mạng
         try {
-            wakeLock?.acquire(2000L)
+            wakeLock?.acquire(10_000L)
         } catch (_: Exception) {}
 
         try {
@@ -196,16 +206,14 @@ class FcmHeartbeatService : Service() {
     }
 
     private fun scheduleNextAlarm(delayMs: Long) {
+        if (!isEnabled(this)) return
         val am = alarmManager ?: return
-        val intent = Intent(this, FcmHeartbeatService::class.java).apply {
+
+        val intent = Intent(this, HeartbeatAlarmReceiver::class.java).apply {
             action = ACTION_TRIGGER_PULSE
         }
-        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        } else {
-            PendingIntent.FLAG_UPDATE_CURRENT
-        }
-        val pendingIntent = PendingIntent.getService(this, 1003, intent, flags)
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val pendingIntent = PendingIntent.getBroadcast(this, ALARM_REQUEST_CODE, intent, flags)
         val triggerAt = SystemClock.elapsedRealtime() + delayMs
 
         try {
@@ -217,8 +225,24 @@ class FcmHeartbeatService : Service() {
         } catch (_: SecurityException) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 am.setAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pendingIntent)
+            } else {
+                am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAt, pendingIntent)
             }
         }
+    }
+
+    private fun cancelAlarm() {
+        try {
+            val intent = Intent(this, HeartbeatAlarmReceiver::class.java).apply {
+                action = ACTION_TRIGGER_PULSE
+            }
+            val flags = PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            val pendingIntent = PendingIntent.getBroadcast(this, ALARM_REQUEST_CODE, intent, flags)
+            if (pendingIntent != null) {
+                alarmManager?.cancel(pendingIntent)
+                pendingIntent.cancel()
+            }
+        } catch (_: Throwable) {}
     }
 
     private fun sendPingUpdate(status: String, ok: Boolean) {
@@ -230,8 +254,7 @@ class FcmHeartbeatService : Service() {
                     setPackage(packageName)
                 }
             )
-        } catch (_: Exception) {
-        }
+        } catch (_: Exception) {}
     }
 
     private fun sendStateUpdate(running: Boolean) {
@@ -242,8 +265,7 @@ class FcmHeartbeatService : Service() {
                     setPackage(packageName)
                 }
             )
-        } catch (_: Exception) {
-        }
+        } catch (_: Exception) {}
     }
 
     @SuppressLint("MissingPermission")
@@ -251,8 +273,7 @@ class FcmHeartbeatService : Service() {
         try {
             NotificationManagerCompat.from(this)
                 .notify(NOTIFICATION_ID, buildForegroundNotification(status))
-        } catch (_: Exception) {
-        }
+        } catch (_: Exception) {}
     }
 
     private fun buildForegroundNotification(content: String): Notification {
@@ -304,30 +325,39 @@ class FcmHeartbeatService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) {
-            setEnabled(this, false)
-            sendStateUpdate(false)
-            stopSelf()
+        if (intent?.action == ACTION_STOP || !isEnabled(this)) {
+            stopPulseService()
             return START_NOT_STICKY
         }
 
         if (intent?.action == ACTION_TRIGGER_PULSE) {
-            serviceScope.launch {
-                performPulse()
-                val interval = getIntervalMs(applicationContext)
-                scheduleNextAlarm(interval)
-            }
+            triggerPulse()
         }
 
-        if (!isEnabled(this)) {
-            stopSelf()
-            return START_NOT_STICKY
-        }
         return START_STICKY
+    }
+
+    private fun stopPulseService() {
+        isRunning = false
+        setEnabled(this, false)
+        cancelAlarm()
+        sendStateUpdate(false)
+        serviceJob.cancel()
+        if (wakeLock?.isHeld == true) {
+            try { wakeLock?.release() } catch (_: Exception) {}
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
+        stopSelf()
     }
 
     override fun onDestroy() {
         isRunning = false
+        cancelAlarm()
         sendStateUpdate(false)
         serviceJob.cancel()
         if (wakeLock?.isHeld == true) {

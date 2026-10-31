@@ -37,7 +37,7 @@ object FcmPinger {
                         addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
                     }
                 )
-            } catch (_: Exception) {}
+            } catch (_: Throwable) {}
         }
     }
 
@@ -53,26 +53,33 @@ object FcmPinger {
         val start = System.currentTimeMillis()
         var socket: Socket? = null
         var isSuccess = false
-        var latency = 0L
 
         try {
-            socket = Socket()
+            socket = Socket().apply {
+                tcpNoDelay = true
+                soTimeout = TIMEOUT_MS
+            }
             try {
                 socket.connect(InetSocketAddress(FCM_HOST, FCM_PORT_PRIMARY), TIMEOUT_MS)
+                isSuccess = true
             } catch (_: Exception) {
-                socket.close()
-                socket = Socket()
+                try { socket.close() } catch (_: Exception) {}
+                socket = Socket().apply {
+                    tcpNoDelay = true
+                    soTimeout = TIMEOUT_MS
+                }
                 socket.connect(InetSocketAddress(FCM_HOST, FCM_PORT_FALLBACK), TIMEOUT_MS)
+                isSuccess = true
             }
-            latency = System.currentTimeMillis() - start
-            isSuccess = true
         } catch (_: Exception) {
-            latency = System.currentTimeMillis() - start
+            isSuccess = false
         } finally {
             try {
                 socket?.close()
             } catch (_: Exception) {}
         }
+
+        val latency = (System.currentTimeMillis() - start).coerceAtLeast(1)
 
         // BẮT BUỘC: Luôn phát sóng đánh thức GMS ở mỗi chu kỳ để duy trì socket push
         // và giải phóng tức thì mọi thông báo đang chờ tại máy chủ Google!
@@ -92,7 +99,7 @@ object FcmPinger {
             val network = cm.activeNetwork ?: return false
             val capabilities = cm.getNetworkCapabilities(network) ?: return false
             capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        } catch (_: Exception) {
+        } catch (_: Throwable) {
             false
         }
     }

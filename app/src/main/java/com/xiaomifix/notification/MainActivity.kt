@@ -23,6 +23,7 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import com.xiaomifix.notification.databinding.ActivityMainBinding
 import com.xiaomifix.notification.service.FcmHeartbeatService
+import com.xiaomifix.notification.util.FcmPinger
 import com.xiaomifix.notification.util.MiuiHelper
 import com.xiaomifix.notification.util.ShizukuHelper
 import kotlinx.coroutines.launch
@@ -68,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         val shouldStart = startServiceAfterPermission
         startServiceAfterPermission = false
 
-        if (granted && MiuiHelper.isNotificationPermissionGranted(this)) {
+        if (granted) {
             if (shouldStart) startHeartbeatService()
         } else {
             setSwitchSilently(false)
@@ -79,25 +80,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val binderReceivedListener = Shizuku.OnBinderReceivedListener {
-        updateShizukuState()
-        maybeOptimizeSelf()
+        runOnUiThread {
+            if (!isFinishing && !isDestroyed) {
+                updateShizukuState()
+                maybeOptimizeSelf()
+            }
+        }
     }
 
     private val binderDeadListener = Shizuku.OnBinderDeadListener {
-        updateShizukuState()
+        runOnUiThread {
+            if (!isFinishing && !isDestroyed) {
+                updateShizukuState()
+            }
+        }
     }
 
     private val shizukuListener = Shizuku.OnRequestPermissionResultListener { requestCode, result ->
-        // AppListActivity dùng request code riêng; bỏ qua để không tối ưu
-        // hoặc hiện toast trùng khi quyền được cấp từ màn hình danh sách app.
         if (requestCode == REQUEST_SHIZUKU) {
             val granted = result == PackageManager.PERMISSION_GRANTED
-            updateShizukuState()
-            if (granted) {
-                maybeOptimizeSelf(force = true)
-                Toast.makeText(this@MainActivity, R.string.msg_shizuku_granted, Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this@MainActivity, R.string.msg_shizuku_denied, Toast.LENGTH_SHORT).show()
+            runOnUiThread {
+                if (!isFinishing && !isDestroyed) {
+                    updateShizukuState()
+                    if (granted) {
+                        maybeOptimizeSelf(force = true)
+                        Toast.makeText(this@MainActivity, R.string.msg_shizuku_granted, Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@MainActivity, R.string.msg_shizuku_denied, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
@@ -150,7 +161,7 @@ class MainActivity : AppCompatActivity() {
         b.btnForceWake.setOnClickListener {
             b.tvPingStats.text = getString(R.string.msg_force_wake_waking)
             lifecycleScope.launch {
-                val result = com.xiaomifix.notification.util.FcmPinger.pingFcmServer(applicationContext)
+                val result = FcmPinger.pingFcmServer(applicationContext)
                 b.tvPingStats.text = result.message
                 updatePingPill(result.success)
                 if (result.success) {
@@ -161,6 +172,14 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                 } else {
                     Toast.makeText(this@MainActivity, result.message, Toast.LENGTH_SHORT).show()
+                }
+                if (FcmHeartbeatService.isServiceRunning(this@MainActivity)) {
+                    val pulseIntent = Intent(this@MainActivity, FcmHeartbeatService::class.java).apply {
+                        action = FcmHeartbeatService.ACTION_TRIGGER_PULSE
+                    }
+                    try {
+                        ContextCompat.startForegroundService(this@MainActivity, pulseIntent)
+                    } catch (_: Throwable) {}
                 }
             }
         }
@@ -190,11 +209,20 @@ class MainActivity : AppCompatActivity() {
         FcmHeartbeatService.setIntervalMs(this, ms)
         renderIntervalUi(ms)
         Toast.makeText(this, getString(R.string.msg_interval_changed, name), Toast.LENGTH_SHORT).show()
+
         if (FcmHeartbeatService.isServiceRunning(this)) {
             val i = Intent(this, FcmHeartbeatService::class.java).apply {
                 action = FcmHeartbeatService.ACTION_TRIGGER_PULSE
             }
-            startService(i)
+            try {
+                ContextCompat.startForegroundService(this, i)
+            } catch (_: Throwable) {}
+        }
+
+        if (ShizukuHelper.hasPermission()) {
+            lifecycleScope.launch {
+                ShizukuHelper.optimizeSelfAndSystem(applicationContext)
+            }
         }
     }
 
@@ -224,7 +252,6 @@ class MainActivity : AppCompatActivity() {
                 startServiceAfterPermission = true
                 notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             } else {
-                // Android 12 trở xuống: mở cài đặt thông báo của ứng dụng.
                 startServiceAfterPermission = false
                 setSwitchSilently(false)
                 updateHeartbeatUi(false)
@@ -246,12 +273,13 @@ class MainActivity : AppCompatActivity() {
             }
             ContextCompat.startForegroundService(
                 this,
-                Intent(this, FcmHeartbeatService::class.java)
+                Intent(this, FcmHeartbeatService::class.java).apply {
+                    action = FcmHeartbeatService.ACTION_TRIGGER_PULSE
+                }
             )
             updateHeartbeatUi(true)
             Toast.makeText(this, R.string.msg_service_started, Toast.LENGTH_SHORT).show()
 
-            // Nếu hệ thống chặn FGS, đưa công tắc về trạng thái đúng.
             b.root.postDelayed({
                 if (isFinishing || isDestroyed) return@postDelayed
                 if (FcmHeartbeatService.isEnabled(this) &&
@@ -335,11 +363,10 @@ class MainActivity : AppCompatActivity() {
     private fun onNotificationPermissionClicked() {
         if (MiuiHelper.isNotificationPermissionGranted(this)) {
             MiuiHelper.openAppNotificationSettings(this, packageName)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        } else if (Build.VERSION_CODES.TIRAMISU <= Build.VERSION.SDK_INT) {
             startServiceAfterPermission = false
             notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
-            // Android 12 trở xuống không có runtime permission; mở cài đặt.
             MiuiHelper.openAppNotificationSettings(this, packageName)
         }
     }
@@ -445,7 +472,7 @@ class MainActivity : AppCompatActivity() {
         prefs.edit().putLong(KEY_LAST_OPTIMIZE, now).apply()
         lifecycleScope.launch {
             ShizukuHelper.optimizeSelfAndSystem(applicationContext)
-            if (force) {
+            if (force && !isFinishing && !isDestroyed) {
                 Toast.makeText(
                     this@MainActivity,
                     R.string.msg_self_optimized,
@@ -460,8 +487,7 @@ class MainActivity : AppCompatActivity() {
             Shizuku.addBinderReceivedListenerSticky(binderReceivedListener)
             Shizuku.addBinderDeadListener(binderDeadListener)
             Shizuku.addRequestPermissionResultListener(shizukuListener)
-        } catch (_: Throwable) {
-        }
+        } catch (_: Throwable) {}
     }
 
     override fun onStart() {
@@ -486,10 +512,6 @@ class MainActivity : AppCompatActivity() {
         maybeOptimizeSelf()
     }
 
-    /**
-     * Tự khởi động lại dịch vụ nếu người dùng đã bật trước đó nhưng tiến trình
-     * bị HyperOS dọn trong lúc app đóng. Không làm gì nếu người dùng đã tắt.
-     */
     private fun maybeRestartService() {
         if (!FcmHeartbeatService.isEnabled(this)) return
         if (FcmHeartbeatService.isServiceRunning(this)) return
@@ -497,22 +519,20 @@ class MainActivity : AppCompatActivity() {
         try {
             ContextCompat.startForegroundService(
                 this,
-                Intent(this, FcmHeartbeatService::class.java)
+                Intent(this, FcmHeartbeatService::class.java).apply {
+                    action = FcmHeartbeatService.ACTION_TRIGGER_PULSE
+                }
             )
             b.root.postDelayed({
                 if (!isFinishing && !isDestroyed) refreshServiceState()
             }, 600L)
-        } catch (_: Exception) {
-            // Thiết bị có thể chặn FGS; trạng thái sẽ được phản ánh khi
-            // người dùng bật lại công tắc.
-        }
+        } catch (_: Throwable) {}
     }
 
     override fun onStop() {
         try {
             unregisterReceiver(pingReceiver)
-        } catch (_: Exception) {
-        }
+        } catch (_: Exception) {}
         super.onStop()
     }
 
@@ -521,8 +541,7 @@ class MainActivity : AppCompatActivity() {
             Shizuku.removeBinderReceivedListener(binderReceivedListener)
             Shizuku.removeBinderDeadListener(binderDeadListener)
             Shizuku.removeRequestPermissionResultListener(shizukuListener)
-        } catch (_: Throwable) {
-        }
+        } catch (_: Throwable) {}
         super.onDestroy()
     }
 
